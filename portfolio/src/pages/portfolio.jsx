@@ -46,10 +46,10 @@ const Portfolio = () => {
           <div className="bg-warning" style={{ height: "4px", width: "50px", marginTop: "5px" }}></div>
         </div>
         <nav className="d-none d-md-flex gap-3">
-          <a href="#" className="text-white text-decoration-none">About</a>
-          <a href="#" className="text-white text-decoration-none">Resume</a>
+          <a href="/" className="text-white text-decoration-none">About</a>
+          <a href="/resume" className="text-white text-decoration-none">Resume</a>
           <a href="#" className="text-warning fw-semibold text-decoration-none">Portfolio</a>
-          <a href="#" className="text-white text-decoration-none">Contact</a>
+          <a href="/contact" className="text-white text-decoration-none">Contact</a>
         </nav>
       </div>
 

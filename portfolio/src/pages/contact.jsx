@@ -44,10 +44,10 @@ const Contact = () => {
           ></div>
         </div>
         <nav className="d-none d-md-flex gap-3">
-          <a href="#" className="text-white text-decoration-none">About</a>
-          <a href="#" className="text-white text-decoration-none">Resume</a>
-          <a href="#" className="text-white text-decoration-none">Portfolio</a>
-          <a href="#" className="text-warning fw-semibold text-decoration-none">Contact</a>
+          <a href="/" className="text-white text-decoration-none">About</a>
+          <a href="/resume" className="text-white text-decoration-none">Resume</a>
+          <a href="/portfolio" className="text-white text-decoration-none">Portfolio</a>
+          <a href="/contact" className="text-warning fw-semibold text-decoration-none">Contact</a>
         </nav>
       </div>
 
