@@ -109,7 +109,7 @@ const Contact = () => {
             type="submit"
             className="btn btn-warning fw-bold px-4 shadow-sm"
           >
-            Send Message
+            Send Message *doesn't work for now
           </button>
         </div>
       </form>

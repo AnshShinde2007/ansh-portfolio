@@ -2,15 +2,13 @@
 import React, { useState } from "react";
 
 const projects = [
-  { title: "Nagark App", type: "Applications", image: "/images/nagarik.png", link: "https://nagarikapp.gov.np" },
-  { title: "Ambition Guru", type: "Applications", image: "/images/ambitionguru.png", link: "#" },
-  { title: "Sociair", type: "UI/UX", image: "/images/socair.png", link: "#" },
-  { title: "Tokma", type: "Applications", image: "/images/tokma.png", link: "#" },
-  { title: "Saara", type: "Applications", image: "/images/saara.png", link: "#" },
-  { title: "Ifood", type: "Applications", image: "/images/ifood.png", link: "#" },
+  { title: "Swift Kart", type: "Web development", image: "../assets/swift.png", link: "https://swiftkaart.netlify.app/" },
+  { title: "Feedbacker", type: "Web development", image: "../assets/feedbacker.png", link: "https://feedbacker-app.netlify.app/" },
+  { title: "B-power", type: "UI/UX", image: "../assets/b-power.png", link: "https://b-power-int.netlify.app/" },
+  
 ];
 
-const filters = ["All", "Applications", "Web development", "UI/UX"];
+const filters = ["All", "Web development", "UI/UX"];
 
 const ProjectCard = ({ title, type, image, link }) => (
   <div className="col-sm-6 col-md-4">

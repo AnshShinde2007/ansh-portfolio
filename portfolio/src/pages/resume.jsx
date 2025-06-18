@@ -38,17 +38,11 @@ const Resume = () => {
         <div className="col-md-6 mb-4">
           <h4 className="text-warning fw-bold mb-3">Experience</h4>
           <ResumeCard
-            title="Flutter Developer - XYZ Solutions"
-            subtitle="2023 - Present"
-            description="Working on scalable cross-platform apps, integrated APIs, implemented state management using Provider and Riverpod."
-          />
-          <ResumeCard
-            title="Frontend Intern - ABC Tech"
-            subtitle="2022 - 2023"
-            description="Built responsive web apps using React.js, contributed to UI/UX improvements and dashboard analytics."
+            title="Flutter Developer - Soul Yatri"
+            subtitle="2025 - Present"
+            description="Building frontend of a Mental wellness app using Flutter, integrating APIs, and collaborating with designers."
           />
         </div>
-
         {/* Education Section */}
         <div className="col-md-6 mb-4">
           <h4 className="text-warning fw-bold mb-3">Education</h4>

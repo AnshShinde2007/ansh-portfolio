@@ -5,6 +5,8 @@
     FaLaptopCode,
     FaPencilRuler,
     FaServer,
+    FaMobile,
+    FaCode,
   } from "react-icons/fa";
 
   const ServiceCard = ({ icon: Icon, title, description }) => (
@@ -34,13 +36,11 @@
 
         {/* Description */}
         <p className="text-light">
-          A passionate Flutter developer with strong expertise in cross-platform apps, REST APIs,
-          UI/UX, widgets, and state management solutions. Proven track record in delivering
-          cutting-edge solutions, including API integration, third-party libraries, and performance
-          optimization. An agile collaborator committed to staying current with industry trends.
-          If you're seeking a skilled Flutter developer to breathe life into your project and exceed
-          your expectations, I am here to collaborate and create magic together. Reach out, and let's
-          transform your vision into a reality!
+         Hi! I'm Ansh Shinde, a passionate Computer Engineering student at Shree L.R. Tiwari College of Engineering. I enjoy building practical and impactful tech solutions, especially in Flutter, React, and Firebase. I'm currently working on a Smart Classroom Tracker App to help students find available rooms for study—combining real-time data and smart design to solve real campus problems.
+
+I love exploring the power of AI integration—recently working on integrating Hume AI’s empathic voice API into React Native for emotionally aware applications. I'm constantly learning, experimenting, and building, whether it's a voice-based chatbot, a portfolio in Vite + React, or diving deep into LLMs and backend architectures.
+
+Let’s connect and build something amazing!
         </p>
 
         {/* What I'm Doing */}
@@ -58,6 +58,20 @@
               icon={FaServer}
               title="Backend Development"
               description="High-performance backend services for scalability and security."
+            />
+          </div>
+          <div className="col-12 col-md-6">
+            <ServiceCard
+              icon={FaCode}
+              title="C/C++"
+              description="Pursuing DSA and Algorithms, Competitive Programming, and System Programming."
+            />
+          </div>
+          <div className="col-12 col-md-6">
+            <ServiceCard
+              icon={FaMobile}
+              title="Flutter Developement"
+              description="Flutter app development for Android and iOS with a focus on performance and user experience."
             />
           </div>
         </div>
