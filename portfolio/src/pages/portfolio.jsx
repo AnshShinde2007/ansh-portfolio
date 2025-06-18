@@ -1,11 +1,13 @@
-
+// src/pages/portfolio.jsx
 import React, { useState } from "react";
+import Swift from "../assets/swift.png";
+import Feedbacker from "../assets/feedbacker.png";
+import Bpower from "../assets/b-power.png";
 
 const projects = [
-  { title: "Swift Kart", type: "Web development", image: "../assets/swift.png", link: "https://swiftkaart.netlify.app/" },
-  { title: "Feedbacker", type: "Web development", image: "../assets/feedbacker.png", link: "https://feedbacker-app.netlify.app/" },
-  { title: "B-power", type: "UI/UX", image: "../assets/b-power.png", link: "https://b-power-int.netlify.app/" },
-  
+  { title: "Swift Kart", type: "Web development", image: Swift, link: "https://swiftkaart.netlify.app/" },
+  { title: "Feedbacker", type: "Web development", image: Feedbacker, link: "https://feedbacker-app.netlify.app/" },
+  { title: "B-power", type: "UI/UX", image: Bpower, link: "https://b-power-int.netlify.app/" },
 ];
 
 const filters = ["All", "Web development", "UI/UX"];
@@ -14,12 +16,18 @@ const ProjectCard = ({ title, type, image, link }) => (
   <div className="col-sm-6 col-md-4">
     <a href={link} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
       <div className="card bg-dark h-100 shadow-sm border-0">
-        <img
-          src={image}
-          alt={title}
-          className="card-img-top"
-          style={{ height: "200px", objectFit: "cover", borderTopLeftRadius: "0.5rem", borderTopRightRadius: "0.5rem" }}
-        />
+        <div style={{ height: "200px", overflow: "hidden", borderTopLeftRadius: "0.5rem", borderTopRightRadius: "0.5rem" }}>
+          <img
+            src={image}
+            alt={title}
+            className="card-img-top"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </div>
         <div className="card-body">
           <h5 className="card-title text-white">{title}</h5>
           <p className="card-text text-muted">{type}</p>

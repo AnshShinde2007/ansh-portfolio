@@ -1,3 +1,4 @@
+//src/pages/resume.jsx
 import React from "react";
 
 const ResumeCard = ({ title, subtitle, description }) => (

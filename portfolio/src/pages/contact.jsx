@@ -1,3 +1,4 @@
+//src/pages/contact.jsx
 import React, { useRef } from "react";
 import emailjs from "@emailjs/browser";
 
@@ -58,7 +59,7 @@ const Contact = () => {
           className="w-100 rounded"
           height="300"
           style={{ border: 0 }}
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.3345867518306!2d72.8574102747992!3d19.311282281942333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b1b7d8178a27%3A0x26cb6d41bbf19a99!2sJay%20Shrushti%20Building!5e0!3m2!1sen!2sin!4v1750152230015!5m2!1sen!2sin"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241316.70176810728!2d72.71412747332747!3d19.082482210877558!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1750246134843!5m2!1sen!2sin"
           allowFullScreen
           loading="lazy"
         ></iframe>
