@@ -1,20 +1,23 @@
 //src/pages/contact.jsx
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   const form = useRef();
+  const [sending, setSending] = useState(false);
 
   const sendEmail = (e) => {
     e.preventDefault();
+    if (sending) return;
+    setSending(true);
 
     emailjs
       .sendForm(
-        "service_kjj75vk",
-        "template_rdwq63j",
+        "service_oo1m5ep",
+        "template_m8ltsnd",
         form.current,
         {
-          publicKey: "A7jM5V212fbAzicAY",
+          publicKey: "8N5zeV9x9g2Btq73U",
         }
       )
       .then(
@@ -27,7 +30,8 @@ const Contact = () => {
           console.log("Email error:", error.text);
           alert("Failed to send message. Please try again.");
         }
-      );
+      )
+      .finally(() => setSending(false));
   };
 
   return (
@@ -109,8 +113,9 @@ const Contact = () => {
           <button
             type="submit"
             className="btn btn-warning fw-bold px-4 shadow-sm"
+            disabled={sending}
           >
-            Send Message *doesn't work for now
+            {sending ? "Sending..." : "Send Message"}
           </button>
         </div>
       </form>
