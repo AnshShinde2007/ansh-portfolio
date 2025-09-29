@@ -27,6 +27,7 @@ const Contact = () => {
           form.current.reset();
         },
         (error) => {
+          console.log("service id:", import.meta.env.VITE_service_id," template id:", import.meta.env.VITE_template_id," public id:", import.meta.env.VITE_public_id);
           console.log("Email error:", error);
           alert("Failed to send message. Please try again.");
         }
