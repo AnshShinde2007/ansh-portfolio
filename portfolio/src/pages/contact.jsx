@@ -27,7 +27,7 @@ const Contact = () => {
           form.current.reset();
         },
         (error) => {
-          console.log("Email error:", error.text);
+          console.log("Email error:", error);
           alert("Failed to send message. Please try again.");
         }
       )
