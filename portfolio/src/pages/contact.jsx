@@ -1,38 +1,50 @@
-//src/pages/contact.jsx
+// src/pages/contact.jsx
 import React, { useRef, useState } from "react";
-import emailjs from "@emailjs/browser";
+import toast, { Toaster } from "react-hot-toast";
 
 const Contact = () => {
-  const form = useRef();
+  const form = useRef(null);
   const [sending, setSending] = useState(false);
 
-  const sendEmail = (e) => {
+  const send = async (e) => {
     e.preventDefault();
-    if (sending) return;
+    if (!form.current) return;
+
     setSending(true);
 
-    emailjs
-      .sendForm(
-        import.meta.env.VITE_service_id,
-        import.meta.env.VITE_template_id,
-        form.current,
-        {
-          publicKey: import.meta.env.VITE_public_id,
-        }
-      )
-      .then(
-        (result) => {
-          console.log("Email sent:", result.text);
-          alert("Message sent successfully!");
-          form.current.reset();
+    const data = {
+      username: form.current.username?.value || "",
+      email: form.current.email?.value || "",
+      subject: form.current.subject?.value || "",
+      fullmsg: form.current.fullmsg?.value || ""
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
         },
-        (error) => {
-          console.log("service id:", import.meta.env.VITE_service_id," template id:", import.meta.env.VITE_template_id," public id:", import.meta.env.VITE_public_id);
-          console.log("Email error:", error);
-          alert("Failed to send message. Please try again.");
-        }
-      )
-      .finally(() => setSending(false));
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errBody = await response.text().catch(() => "");
+        throw new Error(errBody || `Status ${response.status}`);
+      }
+
+      const resJson = await response.json().catch(() => ({}));
+      toast.success("Message sent!");
+
+      // optional: reset form after success
+      form.current.reset();
+      console.log("Server response:", resJson);
+    } catch (err) {
+      console.error("Send error:", err);
+      toast.error("Failed to send message");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -40,6 +52,8 @@ const Contact = () => {
       className="bg-secondary bg-opacity-10 rounded-4 p-4 mt-3 mx-auto"
       style={{ maxWidth: "1000px" }}
     >
+      <Toaster position="top-right" />
+
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
         <div>
@@ -47,7 +61,7 @@ const Contact = () => {
           <div
             className="bg-warning"
             style={{ height: "4px", width: "50px", marginTop: "5px" }}
-          ></div>
+          />
         </div>
         <nav className="d-none d-md-flex gap-3">
           <a href="/" className="text-white text-decoration-none">About</a>
@@ -67,49 +81,53 @@ const Contact = () => {
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241316.70176810728!2d72.71412747332747!3d19.082482210877558!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1750246134843!5m2!1sen!2sin"
           allowFullScreen
           loading="lazy"
-        ></iframe>
+        />
       </div>
 
       {/* Contact Form */}
       <h4 className="text-white fw-bold mb-4">Contact Form</h4>
-      <form ref={form} onSubmit={sendEmail} className="row g-3">
+      <form ref={form} onSubmit={send} className="row g-3">
         <div className="col-md-6">
           <input
             type="text"
-            name="user_name"
+            name="username"
             placeholder="Full name"
             className="form-control bg-dark text-white border-0"
             required
           />
         </div>
+
         <div className="col-md-6">
           <input
             type="email"
-            name="user_email"
+            name="email"
             placeholder="Email address"
             className="form-control bg-dark text-white border-0"
             required
           />
         </div>
+
         <div className="col-12">
           <input
-            type="text"
             name="subject"
             placeholder="Subject"
             className="form-control bg-dark text-white border-0"
             required
           />
         </div>
+
         <div className="col-12">
           <textarea
-            name="message"
+            name="fullmsg"
             placeholder="Your Message"
             rows="5"
             className="form-control bg-dark text-white border-0"
             required
-          ></textarea>
+          />
         </div>
+
         <input type="hidden" name="time" value={new Date().toLocaleString()} />
+
         <div className="col-12">
           <button
             type="submit"
