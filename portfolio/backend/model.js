@@ -1,11 +1,38 @@
 import mongoose from "mongoose";
-import { CgPassword } from "react-icons/cg";
-const usersch = new mongoose.Schema({
-    username: String,
-    email:String,
-    subject:String,
-    fullmsg:String
-})
 
-export const user = mongoose.model('User',usersch);
-export const admin = mongoose.model('admin',adminmodel)
+const usersch = new mongoose.Schema({
+  username: String,
+  email: String,
+  subject: String,
+  fullmsg: String,
+});
+export const user = mongoose.model("User", usersch);
+
+const portfolioSchema = new mongoose.Schema({
+  aboutMe: String,
+  email: String,
+  experiences: [
+    {
+      role: String,
+      company: String,
+      duration: String,
+      description: String,
+    },
+  ],
+  skills: [
+    {
+      name: String,
+      logo: String,
+      desc: String,
+    },
+  ],
+  projects: [
+    {
+      title: String,
+      link: String,
+      description: String,
+    },
+  ],
+});
+
+export const Portfolio = mongoose.model("Portfolio", portfolioSchema);

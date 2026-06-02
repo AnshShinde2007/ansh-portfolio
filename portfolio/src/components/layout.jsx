@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 const navLinks = [
   { href: "/", label: "About" },
@@ -8,42 +8,35 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-const Layout = ({ children }) => {
+const Layout = ({ children, title }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  const pageTitle = title
+    ? title
+    : currentPath === "/"
+    ? "About Me"
+    : currentPath.replace("/", "").charAt(0).toUpperCase() + currentPath.slice(2);
+
   return (
-    <div
-      className="bg-secondary bg-opacity-10 rounded-4 p-4 mt-3 mx-auto"
-      style={{ maxWidth: "1000px" }}
-    >
+    <div className="page-card">
       {/* Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center border-bottom border-secondary pb-3 mb-4 gap-2">
-        <div>
-          <h2 className="text-white mb-0">
-            {currentPath === "/"
-              ? "About Me"
-              : currentPath.replace("/", "").charAt(0).toUpperCase() +
-                currentPath.slice(2)}
-          </h2>
-          <div
-            className="bg-warning"
-            style={{ height: "4px", width: "50px", marginTop: "5px" }}
-          ></div>
+      <div className="page-header">
+        <div className="page-title-wrap">
+          <h2>{pageTitle}</h2>
+          <div className="page-title-bar" />
         </div>
 
-        {/* Navigation: only shown on md and above */}
-        <nav className="d-none d-md-flex gap-3 flex-wrap">
+        {/* Desktop Navigation */}
+        <nav className="page-nav">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
-              className={`text-decoration-none fw-semibold ${
-                currentPath === link.href ? "text-warning" : "text-white"
-              }`}
+              to={link.href}
+              className={`nav-link-item${currentPath === link.href ? " active" : ""}`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
       </div>

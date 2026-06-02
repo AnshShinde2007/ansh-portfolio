@@ -1,72 +1,61 @@
-//src/pages/resume.jsx
+// src/pages/resume.jsx
 import React from "react";
+import Layout from "../components/layout";
 
 const ResumeCard = ({ title, subtitle, description }) => (
-  <div className="card bg-dark text-white mb-3 shadow-sm">
-    <div className="card-body">
-      <h5 className="card-title fw-semibold">{title}</h5>
-      <h6 className="card-subtitle mb-2 text-muted">{subtitle}</h6>
-      <p className="card-text text-light small">{description}</p>
-    </div>
+  <div className="resume-card">
+    <p className="resume-card-title">{title}</p>
+    <p className="resume-card-subtitle">{subtitle}</p>
+    <p className="resume-card-desc">{description}</p>
   </div>
 );
 
 const Resume = () => {
   return (
-    <div className="bg-secondary bg-opacity-10 rounded-4 p-4 mt-3 mx-auto" style={{ maxWidth: "1000px" }}>
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
-        <div>
-          <h2 className="text-white mb-0">Resume</h2>
-          <div className="bg-warning" style={{ height: "4px", width: "50px", marginTop: "5px" }}></div>
-        </div>
-        <nav className="d-none d-md-flex gap-3">
-          <a href="/" className="text-white text-decoration-none">About</a>
-          <a href="#" className="text-warning fw-semibold text-decoration-none">Resume</a>
-          <a href="/portfolio" className="text-white text-decoration-none">Portfolio</a>
-          <a href="/contact" className="text-white text-decoration-none">Contact</a>
-        </nav>
-      </div>
-
-      {/* Intro */}
-      <p className="text-light mb-4">
+    <Layout>
+      <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "28px", lineHeight: 1.75 }}>
         Below is a summary of my education and work experience. Feel free to download my resume for more details.
       </p>
 
-      {/* Resume Sections */}
-      <div className="row">
-        {/* Experience Section */}
-        <div className="col-md-6 mb-4">
-          <h4 className="text-warning fw-bold mb-3">Experience</h4>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px" }}>
+        {/* Experience */}
+        <div>
+          <p className="resume-section-title">Experience</p>
           <ResumeCard
-            title="Flutter Developer - Soul Yatri"
-            subtitle="2025 - Present"
+            title="Flutter Developer — Soul Yatri"
+            subtitle="2025 – Present"
             description="Building frontend of a Mental wellness app using Flutter, integrating APIs, and collaborating with designers."
           />
         </div>
-        {/* Education Section */}
-        <div className="col-md-6 mb-4">
-          <h4 className="text-warning fw-bold mb-3">Education</h4>
+
+        {/* Education */}
+        <div>
+          <p className="resume-section-title">Education</p>
           <ResumeCard
             title="B.E. in Computer Science"
-            subtitle="2023 - 2027"
+            subtitle="2023 – 2027"
             description="University of Mumbai – Focused on software engineering, app development, and project-based learning."
           />
           <ResumeCard
             title="Higher Secondary Education"
-            subtitle="2021 - 2023"
+            subtitle="2021 – 2023"
             description="Maharashtra State Board – Completed with distinction, specialized in PCM + CS."
           />
         </div>
       </div>
 
       {/* Download Button */}
-      <div className="text-center mt-5">
-        <a href="./assets/AnshShindeResume.pdf" className="btn btn-warning fw-bold px-4" download>
-          Download Resume
+      <div style={{ textAlign: "center", marginTop: "40px" }}>
+        <a
+          href="https://drive.google.com/drive/folders/1JQvdOWH_iCYrH_I-lxFqH-98IfiU3Q7s?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="download-btn"
+        >
+          ↓ Download Resume
         </a>
       </div>
-    </div>
+    </Layout>
   );
 };
 

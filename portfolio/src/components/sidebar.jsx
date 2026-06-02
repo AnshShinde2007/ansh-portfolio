@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import avatar from "../assets/avatar.png";
 import {
   FaEnvelope,
@@ -10,126 +10,113 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 
-const ProfileCard = () => {
-  return (
-    <div
-      className="card bg-dark text-white p-4 rounded-4 shadow-sm mx-auto my-3"
-      style={{
-        width: "260px",
-        minHeight: "92vh",
-      }}
-    >
-      {/* Responsive override: 80vw on small screens */}
-      <style>
-        {`
-          @media (max-width: 768px) {
-            .card {
-              width: 80vw !important;
-            }
-          }
-        `}
-      </style>
+const navLinks = [
+  { href: "/", label: "About" },
+  { href: "/resume", label: "Resume" },
+  { href: "/portfolio", label: "Portfolio" },
+  { href: "/contact", label: "Contact" },
+];
 
+const ProfileCard = () => {
+  const location = useLocation();
+
+  return (
+    <div className="profile-card">
       {/* Profile Image & Name */}
-      <div className="d-flex flex-column align-items-center">
-        <div className="position-relative">
-          <img
-            src={avatar}
-            alt="avatar"
-            className="rounded-4 mb-3"
-            style={{ width: "200px", maxWidth: "100%" }}
-          />
-          <span
-            className="position-absolute bottom-0 end-0 translate-middle p-2 bg-success border border-light rounded-circle"
-            style={{ width: "13px", height: "13px" }}
-          ></span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <div className="avatar-ring">
+            <img src={avatar} alt="Ansh Shinde avatar" />
+          </div>
+          <span className="online-dot" title="Available for work" />
         </div>
-        <h5 className="mb-1">Ansh Shinde</h5>
-        <span className="badge bg-secondary mb-3">Web Developer</span>
+
+        <p className="profile-name" style={{ marginTop: "14px" }}>Ansh Shinde</p>
+        <span className="profile-badge">Web Developer</span>
       </div>
 
-      <hr className="border-secondary" />
+      <hr className="profile-divider" />
 
       {/* Contact Info */}
-      <div className="text-white-50 small">
-        <div className="d-flex align-items-center mb-3">
-          <div className="bg-secondary bg-opacity-25 p-2 rounded me-3">
-            <FaEnvelope className="text-warning" />
+      <div>
+        <div className="contact-row">
+          <div className="contact-icon-box">
+            <FaEnvelope />
           </div>
           <div>
-            <div className="text-uppercase small">Email</div>
-            <div className="text-white">
-              <a
-                href="mailto:anshshinde449@gmail.com"
-                className="text-white text-decoration-none"
-              >
-                anshshinde449@gmail.com
-              </a>
-            </div>
+            <span className="contact-label">Email</span>
+            <span className="contact-value">
+              <a href="mailto:anshshinde449@gmail.com">anshshinde449@gmail.com</a>
+            </span>
           </div>
         </div>
 
-        <div className="d-flex align-items-center mb-3">
-          <div className="bg-secondary bg-opacity-25 p-2 rounded me-3">
-            <FaPhone className="text-warning" />
+        <div className="contact-row">
+          <div className="contact-icon-box">
+            <FaPhone />
           </div>
           <div>
-            <div className="text-uppercase small">Phone</div>
-            <div className="text-white">+91 9137998751</div>
+            <span className="contact-label">Phone</span>
+            <span className="contact-value">+91 9137998751</span>
           </div>
         </div>
 
-        <div className="d-flex align-items-center mb-4">
-          <div className="bg-secondary bg-opacity-25 p-2 rounded me-3">
-            <FaMapMarkerAlt className="text-warning" />
+        <div className="contact-row">
+          <div className="contact-icon-box">
+            <FaMapMarkerAlt />
           </div>
           <div>
-            <div className="text-uppercase small">Location</div>
-            <div className="text-white">Bhayandar, Mumbai</div>
+            <span className="contact-label">Location</span>
+            <span className="contact-value">Bhayandar, Mumbai</span>
           </div>
         </div>
       </div>
 
+      <hr className="profile-divider" />
+
       {/* Social Links */}
-      <div className="d-flex justify-content-around mb-3">
+      <div className="social-row">
         <a
           href="https://www.linkedin.com/in/ansh-shinde-73137b282/"
           target="_blank"
           rel="noopener noreferrer"
+          className="social-btn"
+          title="LinkedIn"
         >
-          <FaLinkedin className="text-white fs-5" />
+          <FaLinkedin />
         </a>
         <a
           href="https://github.com/AnshShinde2007"
           target="_blank"
           rel="noopener noreferrer"
+          className="social-btn"
+          title="GitHub"
         >
-          <FaGithub className="text-white fs-5" />
+          <FaGithub />
         </a>
         <a
           href="https://x.com/AnshShinde14"
           target="_blank"
           rel="noopener noreferrer"
+          className="social-btn"
+          title="Twitter / X"
         >
-          <FaTwitter className="text-white fs-5" />
+          <FaTwitter />
         </a>
       </div>
 
-      {/* Mobile Navigation Only */}
-      <div className="d-md-none mt-4 text-center">
-        <Link to="/" className="btn btn-outline-light w-100 mb-2">
-          About
-        </Link>
-        <Link to="/resume" className="btn btn-outline-light w-100 mb-2">
-          Resume
-        </Link>
-        <Link to="/portfolio" className="btn btn-outline-light w-100 mb-2">
-          Portfolio
-        </Link>
-        <Link to="/contact" className="btn btn-outline-light w-100">
-          Contact
-        </Link>
-      </div>
+      {/* Mobile Navigation */}
+      <nav className="mobile-nav">
+        {navLinks.map((link) => (
+          <Link
+            key={link.href}
+            to={link.href}
+            className={`mobile-nav-btn${location.pathname === link.href ? " active" : ""}`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 };
