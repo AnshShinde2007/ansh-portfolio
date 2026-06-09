@@ -381,3 +381,154 @@ pre {
 }
 
 .send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ============================================================
+   HYBRID DASHBOARD LANDING PAGE
+   ============================================================ */
+
+.dashboard-screen {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px;
+  box-sizing: border-box;
+  overflow: hidden;
+  z-index: 10;
+}
+
+/* Grid Overlay */
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(26, 42, 58, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 42, 58, 0.12) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Bokeh Particle System */
+.bokeh-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bokeh-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.14) 0%, rgba(0, 229, 255, 0) 70%);
+  filter: blur(16px);
+  animation: float-particle infinite linear;
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(110vh) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-20vh) translateX(120px) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Outlined Header Styling */
+.text-outlined {
+  color: transparent !important;
+  -webkit-text-stroke: 1.5px rgba(200, 216, 232, 0.95);
+  font-weight: 300;
+  letter-spacing: 4px;
+}
+
+/* Dashboard Actions */
+.btn-cyan-outline {
+  background: transparent;
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  padding: 10px 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all var(--t-fast);
+}
+
+.btn-cyan-outline:hover {
+  background: rgba(0, 229, 255, 0.08);
+  box-shadow: var(--glow-cyan);
+}
+
+.btn-link-dim {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: color var(--t-fast);
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-link-dim:hover {
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+}
+
+.nav-link-item {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: color var(--t-fast);
+  padding: 4px 8px;
+}
+
+.nav-link-item:hover {
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+}
+
+/* Back Button inside active Terminal */
+.terminal-gui-back-btn {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  background: rgba(26, 42, 58, 0.2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 12px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all var(--t-fast);
+}
+
+.terminal-gui-back-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+}
+

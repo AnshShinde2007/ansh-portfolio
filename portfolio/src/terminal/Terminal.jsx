@@ -3,6 +3,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { getCommandResponse, COMMANDS } from "./commands";
 import avatar from "../assets/avatar.png";
 
+const BOKEH_PARTICLES = Array.from({ length: 12 }).map((_, i) => ({
+  id: i,
+  width: Math.random() * 80 + 40 + "px",
+  height: Math.random() * 80 + 40 + "px",
+  left: Math.random() * 100 + "%",
+  top: Math.random() * 100 + "%",
+  animationDelay: Math.random() * 10 + "s",
+  animationDuration: Math.random() * 15 + 15 + "s",
+}));
+
 // Neofetch Headline Component
 const NeofetchHeadline = () => {
   return (
@@ -68,6 +78,19 @@ export default function Terminal() {
   // Stats cached in-memory
   const [githubStats, setGithubStats] = useState(null);
 
+  // BIOS Boot screen states
+  const [currentLineIdx, setCurrentLineIdx] = useState(-1);
+  const [bootComplete, setBootComplete] = useState(false);
+
+  const bootSteps = [
+    { text: "INITIALIZING ANSH.OS v1.0.0" },
+    { text: "LOADING NEURAL ARCHITECTURE..." },
+    { text: "MOUNTING AI SUBSYSTEMS...........[OK]", ready: true },
+    { text: "VERIFYING IDENTITY MATRIX.........[OK]", ready: true },
+    { text: "DECRYPTING PORTFOLIO DATABASE.......[OK]", ready: true },
+    { text: "SYSTEM READY", ready: true }
+  ];
+
   // Refs
   const bufferEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -92,39 +115,71 @@ export default function Terminal() {
   useEffect(() => {
     if (phase !== "boot") return;
 
-    const bootLines = [
-      { text: "ANSH-OS v1.0.0 — BIOS initiating...", delay: 100 },
-      { text: "CPU: Full-Stack · Backend · AI", delay: 250 },
-      { text: "RAM: 4 years experience loaded", delay: 400 },
-      { text: "Storage: /projects /skills /experience /contact", delay: 600 },
-      { text: "", delay: 700 },
-      { text: "[████████████████████] 100%", delay: 1100, class: "line-green" },
-      { text: "", delay: 1200 },
-      { text: "Mounting filesystem...           OK", delay: 1400, class: "line-green" },
-      { text: "Loading kernel modules...        OK", delay: 1600, class: "line-green" },
-      { text: "Starting network services...     OK", delay: 1800, class: "line-green" },
-      { text: "Initializing portfolio daemon... OK", delay: 2000, class: "line-green" },
-      { text: "", delay: 2200 },
-      { text: "ansh-os login: ", delay: 2500, noNewline: true }
-    ];
-
-    bootLines.forEach((line) => {
-      setTimeout(() => {
-        setBuffer((prev) => {
-          if (line.noNewline && prev.length > 0) {
-            // Append to the last item if requested, or just add it
-            return [...prev, { text: line.text, className: line.class }];
-          }
-          return [...prev, { text: line.text, className: line.class }];
-        });
-      }, line.delay);
+    const timers = [];
+    bootSteps.forEach((_, idx) => {
+      const timer = setTimeout(() => {
+        setCurrentLineIdx(idx);
+      }, (idx + 1) * 500);
+      timers.push(timer);
     });
 
-    setTimeout(() => {
+    const endTimer = setTimeout(() => {
+      setBootComplete(true);
+    }, (bootSteps.length + 1) * 500);
+    timers.push(endTimer);
+
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  const handleBootClick = () => {
+    if (bootComplete) {
       setPhase("login");
       setInputLocked(false);
-    }, 2600);
-  }, []);
+      setBuffer([
+        { text: "ansh-os login: ", noNewline: true }
+      ]);
+    }
+  };
+
+  const triggerDashboardCommand = async (cmd) => {
+    setPhase("shell");
+    setInputLocked(false);
+    setUsername("guest");
+    setBuffer([
+      { isComponent: true, component: <NeofetchHeadline /> },
+      { text: `Last login: ${new Date().toUTCString()} from 127.0.0.1`, className: "line-dim" },
+      { text: "" },
+      { text: "Type 'help' to see available commands." },
+      { text: "" }
+    ]);
+    if (cmd) {
+      setBuffer((prev) => [...prev, { text: `ansh@portfolio:~$ ${cmd}`, className: "line-cyan" }]);
+      const res = await getCommandResponse(cmd, { username: "guest" });
+      if (res.action) {
+        handleSpecialAction(res.action);
+      } else if (res.output) {
+        setBuffer((prev) => [
+          ...prev,
+          ...res.output.map((line) => ({
+            text: line,
+            className: res.type === "error" ? "line-red" : res.type === "success" ? "line-green" : res.type === "cyan" ? "line-cyan" : ""
+          }))
+        ]);
+      }
+    }
+  };
+
+  // Scroll/Wheel trigger on dashboard to transition into CLI shell
+  useEffect(() => {
+    if (phase !== "dashboard") return;
+    const handleWheel = (e) => {
+      if (e.deltaY > 15) {
+        triggerDashboardCommand(null);
+      }
+    };
+    window.addEventListener("wheel", handleWheel);
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [phase]);
 
   // Keyboard controls
   const handleKeyDown = (e) => {
@@ -321,6 +376,8 @@ export default function Terminal() {
       setBuffer([
         { isComponent: true, component: <NeofetchHeadline /> }
       ]);
+    } else if (action === "gui") {
+      setPhase("dashboard");
     } else if (action === "neofetch") {
       setBuffer((prev) => [
         ...prev,
@@ -464,8 +521,182 @@ export default function Terminal() {
     return "ansh@portfolio:~$ ";
   };
 
+  if (phase === "boot") {
+    return (
+      <div className="terminal-screen" onClick={handleBootClick} style={{ justifyContent: "space-between", padding: "32px", display: "flex", flexDirection: "column" }}>
+        {/* Top Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "12px", color: "var(--dim)" }}>
+          <span>ANSH.OS</span>
+          <span>v1.0.0</span>
+        </div>
+
+        {/* Center Boot Content */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", flex: 1 }}>
+          {/* Status Dot */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "var(--dim)" }}>
+            <span style={{
+              display: "inline-block",
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: bootComplete ? "var(--green)" : "var(--cyan)",
+              boxShadow: bootComplete ? "var(--glow-green)" : "var(--glow-cyan)"
+            }}></span>
+            <span>{bootComplete ? "SYSTEM READY" : "BOOTING..."}</span>
+          </div>
+
+          {/* Big ASCII Logo */}
+          <pre style={{
+            color: "var(--text-primary)",
+            margin: "0",
+            lineHeight: "1.2",
+            fontSize: "11px",
+            textAlign: "center",
+            overflow: "hidden"
+          }}>
+{` █████╗ ███╗   ██╗███████╗██╗  ██╗
+██╔══██╗████╗  ██║██╔════╝██║  ██║
+███████║██╔██╗ ██║███████╗███████║
+██╔══██║██║╚██╗██║╚════██║██╔══██║
+██║  ██║██║ ╚████║███████║██║  ██║
+╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝`}
+          </pre>
+
+          {/* Boot Steps */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start", width: "100%", maxWidth: "450px", marginTop: "24px", fontSize: "12px" }}>
+            {bootSteps.map((line, idx) => {
+              if (idx > currentLineIdx) return null;
+              return (
+                <div key={idx} style={{ display: "flex", gap: "12px", color: line.ready ? "var(--green)" : "var(--text-primary)" }}>
+                  <span style={{ color: "var(--green)" }}>▶</span>
+                  <span style={{ color: "var(--cyan)" }}>$</span>
+                  <span>{line.text}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          {bootComplete && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", width: "100%", maxWidth: "320px", margin: "24px 0 16px 0" }}>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border)" }}></div>
+                <div style={{ width: "6px", height: "6px", backgroundColor: "var(--dim)", margin: "0 8px" }}></div>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border)" }}></div>
+              </div>
+
+              {/* Click anywhere target */}
+              <div
+                style={{
+                  color: "var(--cyan)",
+                  textShadow: "var(--glow-cyan)",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  letterSpacing: "2px",
+                  animation: "cursor-blink 1.5s step-end infinite",
+                  userSelect: "none"
+                }}
+              >
+                [ CLICK ANYWHERE TO ENTER ]
+              </div>
+              <div style={{ color: "var(--dim)", fontSize: "11px", marginTop: "8px" }}>
+                (Hint: login with guest / guest)
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "12px", color: "var(--dim)" }}>
+          <span>MUM-IND</span>
+          <span>[ SECURE ]</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "dashboard") {
+    return (
+      <div className="dashboard-screen" onClick={() => triggerDashboardCommand(null)}>
+        <div className="grid-overlay" />
+        <div className="bokeh-container">
+          {BOKEH_PARTICLES.map((p) => (
+            <div
+              key={p.id}
+              className="bokeh-particle"
+              style={{
+                width: p.width,
+                height: p.height,
+                left: p.left,
+                top: p.top,
+                animationDelay: p.animationDelay,
+                animationDuration: p.animationDuration,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Top Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", zIndex: 10, alignItems: "center" }}>
+          <span style={{ color: "var(--cyan)", textShadow: "var(--glow-cyan)", fontWeight: "bold", letterSpacing: "1px", fontFamily: "var(--font-mono)" }}>ANSH_</span>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("about"); }}>[ABOUT]</button>
+            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("projects"); }}>[PROJECTS]</button>
+            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("skills"); }}>[SKILLS]</button>
+            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("contact"); }}>[CONTACT]</button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, zIndex: 10, textAlign: "center" }}>
+          {/* Status Label */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "var(--dim)", marginBottom: "16px" }}>
+            <span style={{
+              display: "inline-block",
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              backgroundColor: "var(--green)",
+              boxShadow: "var(--glow-green)"
+            }}></span>
+            <span style={{ letterSpacing: "1.5px", fontFamily: "var(--font-mono)", fontSize: "11px" }}>ANSH.OS v1.0.0 / ONLINE</span>
+          </div>
+
+          {/* Heading */}
+          <h1 style={{ fontSize: "clamp(3.5rem, 8vw, 6.5rem)", fontWeight: "900", color: "#fff", lineHeight: "0.95", margin: "0", letterSpacing: "4px", fontFamily: "var(--font-mono)" }}>
+            ANSH
+          </h1>
+          <h1 className="text-outlined" style={{ fontSize: "clamp(3.5rem, 8vw, 6.5rem)", margin: "0", lineHeight: "0.95", fontFamily: "var(--font-mono)" }}>
+            SHINDE
+          </h1>
+
+          {/* Roles */}
+          <div style={{ color: "var(--text-secondary)", fontSize: "clamp(10px, 1.8vw, 12px)", letterSpacing: "2.5px", marginTop: "24px", fontFamily: "var(--font-mono)", fontWeight: "500" }}>
+            FULL-STACK DEVELOPER  ·  BACKEND ENGINEER  ·  AI BUILDER
+          </div>
+          <div style={{ color: "var(--dim)", fontSize: "11px", letterSpacing: "1.2px", marginTop: "8px", fontFamily: "var(--font-mono)" }}>
+            MUM-IND  ·  B.E. Computer Science
+          </div>
+
+          {/* Buttons */}
+          <div style={{ display: "flex", gap: "24px", marginTop: "40px", alignItems: "center" }}>
+            <button className="btn-cyan-outline" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand(null); }}>[ VIEW WORK ]</button>
+            <button className="btn-link-dim" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("contact"); }}>GET IN TOUCH →</button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", justifyContent: "center", width: "100%", zIndex: 10, fontSize: "11px", color: "var(--dim)", letterSpacing: "1px", fontFamily: "var(--font-mono)" }}>
+          SCROLL OR CLICK TO ENTER
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="terminal-screen" onClick={focusInput}>
+
+
       <div className="terminal-content">
         {/* Output Buffer */}
         {buffer.map((line, idx) => {

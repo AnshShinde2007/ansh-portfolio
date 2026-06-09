@@ -18,7 +18,9 @@ export const COMMANDS = [
   "sudo rm -rf /",
   "ssh tokyo",
   "ping japan",
-  "cat README.md"
+  "cat README.md",
+  "gui",
+  "exit"
 ];
 
 export const getCommandResponse = async (input, terminalState) => {
@@ -436,6 +438,12 @@ export const getCommandResponse = async (input, terminalState) => {
       // Trigger fetch inside Terminal.jsx state
       return {
         action: "stats"
+      };
+
+    case "gui":
+    case "exit":
+      return {
+        action: "gui"
       };
 
     default:
