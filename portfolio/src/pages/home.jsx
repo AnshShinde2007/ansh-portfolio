@@ -1,576 +1,458 @@
 // src/pages/home.jsx
 /* eslint-disable react/no-unescaped-entities */
 import React, { useRef, useState } from "react";
-import { motion } from "framer-motion";
-import Navbar from "../components/navbar";
 import {
-  FaServer,
-  FaCode,
-  FaBrain,
-  FaDocker,
-  FaReact,
-  FaGithub,
-  FaLinkedin,
-  FaEnvelope,
-  FaFileAlt,
-  FaTwitter,
+  FaGithub, FaLinkedin, FaEnvelope, FaFileAlt,
+  FaHome, FaMapMarkerAlt, FaExternalLinkAlt,
+  FaUser, FaCode, FaBriefcase, FaLayerGroup,
+  FaBars, FaTimes,
 } from "react-icons/fa";
+import avatarImg from "../assets/avatar.jpg";
 import toast, { Toaster } from "react-hot-toast";
 
-/* ── Animation Variants ──────────────────────────────────── */
-const fadeUp = {
-  hidden:  { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-  },
-};
+/* ──────────────────────────────────────────────────────────
+   DATA
+   ────────────────────────────────────────────────────────── */
 
-const stagger = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.09 } },
-};
-
-const viewportOpts = { once: true, margin: "-80px" };
-
-/* ══════════════════════════════════════════════════════════
-   HERO SECTION
-══════════════════════════════════════════════════════════ */
-const HeroSection = () => (
-  <section className="hero" id="hero" aria-label="Hero">
-    {/* Ambient background elements */}
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-      {/* Floating code snippets */}
-      {[
-        { text: "const deploy = async () => {\n  await ship();\n};", top: "12%", left: "62%", opacity: 0.045 },
-        { text: "> git push origin main\nremote: deployed ✓", top: "70%", left: "68%", opacity: 0.035 },
-        { text: "SELECT * FROM users\nWHERE active = true;", top: "55%", left: "54%", opacity: 0.04 },
-      ].map((snippet, i) => (
-        <div key={i} style={{
-          position: "absolute",
-          top: snippet.top,
-          left: snippet.left,
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: "0.72rem",
-          color: "rgba(96,165,250,1)",
-          opacity: snippet.opacity,
-          whiteSpace: "pre",
-          lineHeight: 1.7,
-          userSelect: "none",
-          pointerEvents: "none",
-          letterSpacing: "0.02em",
-        }}>{snippet.text}</div>
-      ))}
-    </div>
-
-    <div className="container">
-      <motion.div initial="hidden" animate="visible" variants={stagger}>
-        {/* Badge */}
-        <motion.div variants={fadeUp}>
-          <div className="hero-available-badge">
-            <span className="hero-available-dot" />
-            > Available for opportunities
-          </div>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1 className="hero-headline" variants={fadeUp}>
-          Hi, I&apos;m <span>Ansh</span>
-        </motion.h1>
-
-        {/* Sub-headline */}
-        <motion.p className="hero-sub" variants={fadeUp}>
-          I build scalable software, AI products<br />
-          and developer tools.
-        </motion.p>
-
-        {/* Description */}
-        <motion.p className="hero-desc" variants={fadeUp}>
-          Computer Science student from Mumbai focused on backend engineering,
-          distributed systems and modern web applications.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div className="hero-btns" variants={fadeUp}>
-          <button
-            id="hero-view-projects"
-            className="btn-primary"
-            onClick={() => document.querySelector("#projects")?.scrollIntoView({ behavior: "smooth" })}
-          >
-            View Projects →
-          </button>
-          <button
-            id="hero-contact"
-            className="btn-outline"
-            onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
-          >
-            Contact Me
-          </button>
-        </motion.div>
-      </motion.div>
-    </div>
-
-    {/* Scroll hint */}
-    <div className="hero-scroll-hint" aria-hidden="true">
-      scroll
-      <svg width="12" height="18" viewBox="0 0 12 18" fill="none">
-        <path
-          d="M6 1v16M1 12l5 5 5-5"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════════════════════════
-   ABOUT SECTION
-══════════════════════════════════════════════════════════ */
-const timeline = [
+const PROJECTS = [
   {
-    year: "2021",
-    label: "First line of code",
-    desc: "Started with HTML & CSS. Fell down the rabbit hole immediately.",
+    id: "agentpulse",
+    title: "AgentPulse",
+    subtitle: "AI-Native Observability Platform",
+    year: "2026",
+    tags: ["FastAPI", "OpenTelemetry", "Next.js"],
+    tagExtra: 3,
+    github: "https://github.com/AnshShinde2007/AgentPulse",
+    preview: `$ agentpulse observe
+
+agent: research-agent
+status: HEALTHY
+
+traces: streaming...
+cost_watchdog: active
+sre_sidekick: active
+
+> anomaly detected
+> initiating recovery...
+> recovered ✓`,
   },
   {
-    year: "2022",
-    label: "Hackathon circuit",
-    desc: "Competed in 3+ hackathons. Shipped real products under 48-hour pressure.",
+    id: "huh",
+    title: "Huh?",
+    subtitle: "Context-Aware AI Reading Assistant",
+    year: "2026",
+    tags: ["AI", "Browser Extension", "JavaScript"],
+    tagExtra: 1,
+    github: "https://github.com/AnshShinde2007",
+    preview: `$ huh explain "vector embedding"
+
+reading page context...
+
+context found ✓
+generating explanation...
+
+> A vector embedding is a numerical
+> representation of meaning...`,
   },
   {
-    year: "2023",
-    label: "Backend deep-dive",
-    desc: "Studied distributed systems, PostgreSQL, Redis, and API design at scale.",
+    id: "resumeai",
+    title: "ResumeAI",
+    subtitle: "AI-Powered Resume & Job Intelligence",
+    year: "2026",
+    tags: ["FastAPI", "React", "AI"],
+    tagExtra: 2,
+    github: "https://github.com/AnshShinde2007",
+    preview: `$ resumeai analyze resume.pdf
+
+parsing resume...       ✓
+extracting skills...    ✓
+generating embeddings.. ✓
+
+match_score: 87%
+
+> Backend Developer
+> AI Engineer
+> Full Stack (supporting)`,
+
   },
   {
-    year: "2024",
-    label: "AI & LLM integration",
-    desc: "Built RAG pipelines, vector search apps, and OpenAI-powered developer tools.",
-  },
-  {
-    year: "2025 →",
-    label: "World-class engineer",
-    desc: "Chasing engineering excellence. Long-term goal: software engineer in Japan.",
+    id: "standbyme",
+    title: "StandByMe",
+    subtitle: "Local-First Smart Dashboard",
+    year: "2026",
+    tags: ["React Native", "Expo", "SQLite"],
+    tagExtra: 2,
+    github: "https://github.com/AnshShinde2007",
+    preview: `$ standby start
+
+database: LOCAL
+cloud_dependency: NONE
+
+orientation_engine ✓
+widget_engine      ✓
+media_session      ✓
+
+dashboard ready.`,
   },
 ];
 
-const AboutSection = () => (
-  <section className="section" id="about" aria-label="About">
-    <div className="container">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOpts}
-        variants={stagger}
-      >
-        <motion.span className="section-label" variants={fadeUp}>About</motion.span>
-        <motion.h2 className="section-title" variants={fadeUp}>
-          Building with{" "}
-          <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>purpose</span>
-        </motion.h2>
-
-        <div className="about-grid">
-          {/* Bio */}
-          <motion.div className="about-bio" variants={fadeUp}>
-            <p>
-              I&apos;m <strong>Ansh Shinde</strong>, a Computer Science student from Mumbai
-              obsessed with building things that actually work. Not side projects that
-              never launch — real products that solve real problems.
-            </p>
-            <p style={{ marginTop: "16px" }}>
-              My core focus is <strong>backend engineering</strong> — designing systems
-              that scale, APIs that don&apos;t break, and infrastructure that stays up.
-              I&apos;m equally drawn to <strong>AI products</strong>: RAG pipelines,
-              vector databases, and LLM-powered developer tools.
-            </p>
-            <p style={{ marginTop: "16px" }}>
-              I&apos;ve already started thinking like a software engineer. This portfolio
-              is evidence of that, not a placeholder for potential.
-            </p>
-            <div className="about-tags">
-              {["Backend Systems", "AI Products", "Developer Tools", "Open Source", "Distributed Systems"].map((t) => (
-                <span key={t} className="about-tag">{t}</span>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Timeline */}
-          <motion.div variants={fadeUp}>
-            <div className="timeline">
-              {timeline.map((item, i) => (
-                <div key={i} className="timeline-item">
-                  <div className="timeline-year">{item.year}</div>
-                  <div className="timeline-label">{item.label}</div>
-                  <div className="timeline-desc">{item.desc}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════════════════════════
-   SKILLS SECTION
-══════════════════════════════════════════════════════════ */
-const skillDomains = [
+const EXPERIENCE = [
   {
-    icon: FaServer,
-    name: "Backend",
-    skills: ["Node.js", "Express", "PostgreSQL", "Redis", "MongoDB", "REST APIs", "Auth / JWT", "WebSockets"],
+    id: "freelance",
+    abbr: "FS",
+    title: "Backend & AI Developer",
+    org: "Freelance & Independent Projects",
+    year: "2024 — Present",
+    desc: "Building full-stack applications, AI systems, APIs, developer tools, and production websites while experimenting with modern backend and AI architectures.",
+    badge: "Production",
   },
   {
-    icon: FaReact,
-    name: "Frontend",
-    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Vite", "HTML5", "CSS3"],
+    id: "internship",
+    abbr: "IN",
+    title: "Software Development Intern",
+    org: "Industry",
+    year: "2025 — 2026",
+    desc: "Worked on real-world development projects while gaining experience with production workflows, APIs, databases, debugging, and collaborative development.",
+    badge: null,
   },
   {
-    icon: FaBrain,
-    name: "AI / ML",
-    skills: ["OpenAI APIs", "RAG", "Vector DBs", "AI Agents", "LangChain", "Embeddings", "Prompt Eng."],
-  },
-  {
-    icon: FaDocker,
-    name: "DevOps",
-    skills: ["Docker", "AWS", "Linux", "CI/CD", "Git", "Nginx", "PM2"],
-  },
-];
-
-const SkillsSection = () => (
-  <section className="section" id="skills" aria-label="Skills">
-    <div className="container">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOpts}
-        variants={stagger}
-      >
-        <motion.span className="section-label" variants={fadeUp}>Stack</motion.span>
-        <motion.h2 className="section-title" variants={fadeUp}>
-          Tools I{" "}
-          <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>work with</span>
-        </motion.h2>
-        <motion.p className="section-subtitle" variants={fadeUp}>
-          Grouped by domain. Core focus on backend and AI, comfortable across the
-          full stack.
-        </motion.p>
-
-        <div className="skills-grid">
-          {skillDomains.map((domain, i) => (
-            <motion.div key={i} className="skill-domain-card" variants={fadeUp}>
-              <div className="skill-domain-header">
-                <div className="skill-domain-icon">
-                  <domain.icon />
-                </div>
-                <span className="skill-domain-name">{domain.name}</span>
-              </div>
-              <div className="skill-pills">
-                {domain.skills.map((s) => (
-                  <span key={s} className="skill-pill">{s}</span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════════════════════════
-   PROJECTS SECTION
-══════════════════════════════════════════════════════════ */
-const projects = [
-  {
-    name: "Job Recommendation Platform",
-    desc: "AI-powered job matching engine with resume analysis, skill gap detection, and a personalised recommendation pipeline. Long-term project — built for real-world recruitment automation.",
-    tech: ["OpenAI", "RAG", "Node.js", "PostgreSQL", "React", "Vector DB"],
-    featured: true,
-    emoji: "🎯",
-    visual: `> Analyzing resume...
-> Extracting skills:
-  [Node.js, React, PostgreSQL, Docker]
-> Running semantic match...
-> Candidates found: 847
-> Top match score:  0.94
-> Role: Backend Engineer @ ...
-> Sending recommendation...
-✓ done in 312ms`,
-  },
-  {
-    name: "GitHub Repo Assistant",
-    desc: "AI tool that understands your entire codebase. Ask questions, generate docs, and search across any repository using RAG and vector search.",
-    tech: ["OpenAI", "React", "Node.js", "Vector Search", "GitHub API"],
-    emoji: "🤖",
-    visual: `> repo: AnshShinde2007/project
-> indexing 142 files... done
-
-User: "How does auth work?"
-
-AI: JWT tokens validated in
-    middleware/auth.js:23
-    using RS256 + refresh cycle
-
-> context: 3 files referenced`,
-  },
-  {
-    name: "URL Shortener",
-    desc: "System design showcase. High-performance URL shortener with Redis caching, rate limiting, real-time click analytics, and scalable architecture.",
-    tech: ["Node.js", "Redis", "PostgreSQL", "Rate Limiting", "Analytics"],
-    emoji: "⚡",
-    visual: `> POST /api/shorten
-  url: "https://very-long..."
-  ✓ cached in Redis   (2ms)
-  ✓ rate limit:   98/100
-
-> Analytics dashboard
-  clicks today:   1,247
-  unique users:     891
-  cache hit rate:  94%
-  p99 latency:     8ms`,
-  },
-];
-
-const ProjectsSection = () => (
-  <section className="section" id="projects" aria-label="Projects">
-    <div className="container">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOpts}
-        variants={stagger}
-      >
-        <motion.span className="section-label" variants={fadeUp}>Work</motion.span>
-        <motion.h2 className="section-title" variants={fadeUp}>
-          Featured{" "}
-          <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>projects</span>
-        </motion.h2>
-        <motion.p className="section-subtitle" variants={fadeUp}>
-          Products built with real engineering depth. Not tutorials, not templates.
-        </motion.p>
-
-        <div className="projects-grid">
-          {projects.map((p, i) => (
-            <motion.div
-              key={i}
-              className={`project-card-new${p.featured ? " featured" : ""}`}
-              variants={fadeUp}
-            >
-              <div className="project-visual">
-                <div className="project-visual-bg">{p.visual}</div>
-                <div className="project-visual-icon">{p.emoji}</div>
-                <div className="project-hover-overlay">↗ View Project</div>
-              </div>
-              <div className="project-body">
-                {p.featured && (
-                  <div className="project-featured-badge">★ Centerpiece</div>
-                )}
-                <div className="project-name">{p.name}</div>
-                <div className="project-desc">{p.desc}</div>
-                <div className="project-tech-tags">
-                  {p.tech.map((t) => (
-                    <span key={t} className="project-tech-tag">{t}</span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════════════════════════
-   EXPERIENCE SECTION
-══════════════════════════════════════════════════════════ */
-const experiences = [
-  {
-    year: "2025 – Present",
-    title: "Flutter Developer",
-    org: "Soul Yatri",
-    desc: "Building the frontend of a mental wellness application. Integrating empathy voice APIs, implementing real-time data features, and collaborating with designers on user-first interactions.",
-    metric: "Production app · 0 → launch",
-  },
-  {
-    year: "2024",
-    title: "Hackathon Engineer",
+    id: "hackathons",
+    abbr: "HK",
+    title: "Hackathon Developer",
     org: "3+ Competitions",
-    desc: "Shipped production-ready applications under 24–48 hour constraints. Focused on rapid backend prototyping, clean architecture, and demos that actually worked.",
-    metric: "3 hackathons · shipped every time",
-  },
-  {
-    year: "2023 – Present",
-    title: "Open Source Contributor",
-    org: "GitHub · @AnshShinde2007",
-    desc: "Actively building and contributing to developer tooling. Published repositories covering backend templates, AI integration patterns, and system-design demonstrations.",
-    metric: "Public repos · active contributor",
+    year: "2024 — Present",
+    desc: "Built rapid prototypes and production-style systems under strict time constraints across AI, web development, and product engineering.",
+    badge: "3× Hackathons",
   },
 ];
 
-const ExperienceSection = () => (
-  <section className="section" id="experience" aria-label="Experience">
-    <div className="container">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOpts}
-        variants={stagger}
-      >
-        <motion.span className="section-label" variants={fadeUp}>Experience</motion.span>
-        <motion.h2 className="section-title" variants={fadeUp}>
-          What I've{" "}
-          <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>shipped</span>
-        </motion.h2>
-        <motion.p className="section-subtitle" variants={fadeUp}>
-          Show execution, not motivation. Every card has a measurable outcome.
-        </motion.p>
-
-        <div className="experience-grid">
-          {experiences.map((exp, i) => (
-            <motion.div key={i} className="exp-card" variants={fadeUp}>
-              <div className="exp-card-year">{exp.year}</div>
-              <div className="exp-card-title">{exp.title}</div>
-              <div className="exp-card-org">{exp.org}</div>
-              <div className="exp-card-desc">{exp.desc}</div>
-              <div className="exp-metric">{exp.metric}</div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════════════════════════
-   DEVELOPER DASHBOARD SECTION
-══════════════════════════════════════════════════════════ */
-const stats = [
-  { label: "Years Coding",    value: "4+",   unit: "years" },
-  { label: "Projects Built",  value: "12+",  unit: "shipped" },
-  { label: "Hackathons",      value: "3+",   unit: "competed" },
-  { label: "GitHub Commits",  value: "500+", unit: "commits" },
+const SKILLS = [
+  {
+    label: "Backend",
+    items: ["Node.js", "Express", "FastAPI", "Python", "REST APIs", "PostgreSQL", "MongoDB", "SQLite", "Firebase"],
+  },
+  {
+    label: "Frontend",
+    items: ["React", "Next.js", "React Native", "Expo", "TypeScript", "JavaScript", "Tailwind CSS", "shadcn/ui"],
+  },
+  {
+    label: "AI / ML",
+    items: ["LLM APIs", "AI Agents", "RAG", "Embeddings", "Vector Search", "Prompt Engineering", "NLP", "AI Tooling"],
+  },
+  {
+    label: "DevOps / Systems",
+    items: ["Docker", "Git", "GitHub", "OpenTelemetry", "GCP", "Linux", "Vercel", "Netlify", "Render"],
+  },
 ];
 
-const DashboardSection = () => (
-  <section className="section" id="dashboard" aria-label="Developer Dashboard">
-    <div className="container">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOpts}
-        variants={stagger}
-      >
-        <motion.span className="section-label" variants={fadeUp}>Stats</motion.span>
-        <motion.h2 className="section-title" variants={fadeUp}>
-          Developer{" "}
-          <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>dashboard</span>
-        </motion.h2>
-        <motion.p className="section-subtitle" variants={fadeUp}>
-          Live numbers. No made-up metrics.
-        </motion.p>
+const STATS = [
+  { value: "3+",   label: "Years Building" },
+  { value: "8+",   label: "Projects Shipped" },
+  { value: "3+",   label: "Hackathons" },
+  { value: "500+", label: "Commits" },
+];
 
-        <motion.div className="dashboard-panel" variants={fadeUp}>
-          {/* macOS-style title bar */}
-          <div className="dashboard-titlebar">
-            <div className="dashboard-dot red" />
-            <div className="dashboard-dot yellow" />
-            <div className="dashboard-dot green" />
-            <span className="dashboard-titlebar-label">ansh@portfolio ~ stats --live</span>
-          </div>
-
-          {/* Stats grid */}
-          <div className="dashboard-body">
-            {stats.map((s, i) => (
-              <div key={i} className="dashboard-stat">
-                <div className="dashboard-stat-label">{s.label}</div>
-                <div className="dashboard-stat-value">{s.value}</div>
-                <div className="dashboard-stat-unit">{s.unit}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Focus row with blinking cursor */}
-          <div className="dashboard-focus-row">
-            <span className="dashboard-prompt">$</span>
-            <span>
-              current_focus:{" "}
-              <span style={{ color: "var(--primary-light)" }}>
-                Backend Engineering
-              </span>
-            </span>
-            <span className="dashboard-cursor" />
-          </div>
-        </motion.div>
-      </motion.div>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════════════════════════
-   CONTACT SECTION
-══════════════════════════════════════════════════════════ */
-const contactLinks = [
+const CONTACT_LINKS = [
   {
+    id: "email",
     icon: FaEnvelope,
     label: "Email",
     value: "anshshinde449@gmail.com",
     href: "mailto:anshshinde449@gmail.com",
+    ariaLabel: "Send email to Ansh Shinde",
   },
   {
+    id: "github",
     icon: FaGithub,
     label: "GitHub",
-    value: "github.com/AnshShinde2007",
+    value: "AnshShinde2007",
     href: "https://github.com/AnshShinde2007",
+    ariaLabel: "Ansh Shinde on GitHub (opens in new tab)",
   },
   {
+    id: "linkedin",
     icon: FaLinkedin,
     label: "LinkedIn",
-    value: "linkedin.com/in/ansh-shinde",
+    value: "ansh-shinde-73137b282",
     href: "https://www.linkedin.com/in/ansh-shinde-73137b282/",
+    ariaLabel: "Ansh Shinde on LinkedIn (opens in new tab)",
   },
   {
+    id: "resume",
     icon: FaFileAlt,
     label: "Resume",
     value: "Download PDF →",
-    href: "https://drive.google.com/drive/folders/1JQvdOWH_iCYrH_I-lxFqH-98IfiU3Q7s?usp=sharing",
+    href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing",
+    ariaLabel: "Download Ansh Shinde's resume PDF (opens in new tab)",
   },
 ];
 
-const ContactSection = () => {
+/* ──────────────────────────────────────────────────────────
+   HERO
+   ────────────────────────────────────────────────────────── */
+function Hero() {
+  return (
+    <section className="hero" id="hero" aria-label="Introduction">
+      {/* Decorative HUD — aria-hidden */}
+      <div className="hero-hud" aria-hidden="true">
+        <svg className="hero-hud-svg" viewBox="0 0 560 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="350" cy="200" r="180" stroke="white" strokeWidth="0.5" />
+          <circle cx="350" cy="200" r="120" stroke="white" strokeWidth="0.5" />
+          <circle cx="350" cy="200" r="60" stroke="white" strokeWidth="0.5" />
+          <line x1="170" y1="200" x2="530" y2="200" stroke="white" strokeWidth="0.4" />
+          <line x1="350" y1="20" x2="350" y2="380" stroke="white" strokeWidth="0.4" />
+          <circle cx="350" cy="200" r="4" fill="white" />
+          <text x="390" y="60" fill="white" fontSize="9" fontFamily="monospace">NET: +14.3</text>
+          <text x="430" y="80" fill="white" fontSize="9" fontFamily="monospace">2026</text>
+          <text x="200" y="320" fill="white" fontSize="8" fontFamily="monospace">SPECTRUM_ANALYSIS // E{"{1}"}</text>
+          <text x="165" y="290" fill="white" fontSize="8" fontFamily="monospace">TRK-07</text>
+          <text x="200" y="170" fill="white" fontSize="8" fontFamily="monospace">DS2</text>
+          <rect x="185" y="300" width="160" height="60" rx="2" stroke="white" strokeWidth="0.4" />
+          <text x="194" y="316" fill="white" fontSize="7" fontFamily="monospace">MEMORY_DUMP // SIG_07</text>
+          <text x="194" y="328" fill="white" fontSize="7" fontFamily="monospace">0x00FF01 7A 9C F3 02 04 08</text>
+          <text x="194" y="340" fill="white" fontSize="7" fontFamily="monospace">0x00FF0E 12 AF 00 7E C8 01</text>
+          <text x="194" y="352" fill="white" fontSize="7" fontFamily="monospace">ALU_01</text>
+        </svg>
+      </div>
+
+      {/* Name + avatar side-by-side */}
+      <div className="hero-identity-row">
+        <div className="hero-content">
+          <h1 className="hero-name">
+            Ansh<br />Shinde<sup>io</sup>
+          </h1>
+
+          <p className="hero-role">Backend Developer &amp; AI Engineer</p>
+
+          <div className="hero-meta">
+            <div className="hero-meta-item hero-location">
+              <FaMapMarkerAlt className="hero-location-icon" aria-hidden="true" />
+              <span>INDIA</span>
+            </div>
+            <div className="hero-meta-item hero-status">
+              <span className="hero-status-dot" aria-hidden="true" />
+              <span>OPEN TO WORK</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-avatar-wrap" aria-hidden="true">
+          <img
+            src={avatarImg}
+            alt="Ansh Shinde"
+            className="hero-avatar"
+            draggable="false"
+          />
+        </div>
+      </div>
+
+      {/* Decorative code card */}
+      <div className="hero-hud-card" aria-hidden="true">
+        <div className="hero-hud-card-dot">
+          <span /><span /><span />
+        </div>
+        {`$ ssh ansh@portfolio\n\n`}
+        {`Connected to ansh.dev\n\n`}
+        {`> role\nBackend Developer + AI Engineer\n\n`}
+        {`> focus\nBackend Systems · AI Systems · Developer Tools\n\n`}
+        {`> currently_building\nAgentPulse\n\n`}
+        {`> status\nOpen to interesting problems.`}
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   ABOUT
+   ────────────────────────────────────────────────────────── */
+function About() {
+  return (
+    <section id="about" aria-label="About" className="about-section">
+      <h2 className="section-heading">About</h2>
+
+      <div>
+        <h3 className="section-subheading">Background</h3>
+        <p className="section-body">
+          I'm a Computer Engineering student and developer focused on building systems
+          that go beyond basic CRUD applications. I work across backend engineering,
+          AI systems, developer tooling, and full-stack products.
+        </p>
+      </div>
+
+      <div style={{ marginTop: "32px" }}>
+        <h3 className="section-subheading">What I Build</h3>
+        <p className="section-body">
+          AI-powered products, backend systems, and developer tools — with an emphasis
+          on architecture and real-world usability. My projects range from AI observability
+          and document intelligence to local-first applications and production web platforms.
+        </p>
+      </div>
+
+      {/* Stats row */}
+      <div className="stats-row" aria-label="Statistics">
+        {STATS.map(({ value, label }) => (
+          <div key={label} className="stat-card">
+            <div className="stat-value">{value}</div>
+            <div className="stat-label">{label}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   SKILLS
+   ────────────────────────────────────────────────────────── */
+function Skills() {
+  return (
+    <section id="skills" aria-label="Skills">
+      <h2 className="section-heading">Stack</h2>
+      <div className="skills-grid">
+        {SKILLS.map(({ label, items }) => (
+          <div key={label} className="skill-category">
+            <div className="skill-category-label">{label}</div>
+            <ul className="skill-list" aria-label={`${label} skills`}>
+              {items.map(item => (
+                <li key={item} className="skill-pill">{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   PROJECTS
+   ────────────────────────────────────────────────────────── */
+function Projects() {
+  return (
+    <section id="projects" aria-label="Projects">
+      <h2 className="section-heading">Projects</h2>
+      <div className="projects-grid">
+        {PROJECTS.map(p => (
+          <article key={p.id} className="project-card">
+            {/* Code preview */}
+            <div className="project-preview" aria-hidden="true">
+              <div className="project-preview-bar">
+                <span className="project-preview-dot" />
+                <span className="project-preview-dot" />
+                <span className="project-preview-dot" />
+              </div>
+              {p.preview}
+              <div className="project-preview-fade" />
+            </div>
+
+            {/* Card body */}
+            <div className="project-body">
+              <div className="project-title">{p.title}</div>
+              <div className="project-subtitle">{p.subtitle}</div>
+
+              <div className="project-tags">
+                {p.tags.map(t => (
+                  <span key={t} className="project-tag">{t}</span>
+                ))}
+                {p.tagExtra > 0 && (
+                  <span className="project-tag-more">+{p.tagExtra}</span>
+                )}
+                <span className="project-year" aria-label={`Year: ${p.year}`}>{p.year}</span>
+              </div>
+
+              <div className="project-actions">
+                <a
+                  href={p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-action-btn"
+                  aria-label={`View ${p.title} on GitHub (opens in new tab)`}
+                >
+                  Details →
+                </a>
+                <a
+                  href={p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-github-icon"
+                  aria-label={`${p.title} GitHub repository (opens in new tab)`}
+                >
+                  <FaGithub />
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   EXPERIENCE
+   ────────────────────────────────────────────────────────── */
+function Experience() {
+  return (
+    <section id="experience" aria-label="Experience">
+      <h2 className="section-heading">Experience</h2>
+      <div className="experience-list" role="list">
+        {EXPERIENCE.map(exp => (
+          <div key={exp.id} className="exp-item" role="listitem">
+            <div className="exp-icon" aria-hidden="true">{exp.abbr}</div>
+            <div className="exp-content">
+              <div className="exp-title">{exp.title}</div>
+              <div className="exp-org">{exp.org}</div>
+              <p className="exp-desc">{exp.desc}</p>
+            </div>
+            <div className="exp-meta">
+              <span className="exp-year">{exp.year}</span>
+              {exp.badge && <span className="exp-badge">{exp.badge}</span>}
+            </div>
+            <span className="exp-expand-icon" aria-hidden="true">›</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   CONTACT
+   ────────────────────────────────────────────────────────── */
+function Contact() {
   const form = useRef(null);
   const [sending, setSending] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  const encode = (data) =>
+    Object.keys(data)
+      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
+      .join("&");
 
   const send = async (e) => {
     e.preventDefault();
+    setFormError("");
     if (!form.current) return;
     setSending(true);
 
-    const data = {
-      username: form.current.username?.value || "",
-      email:    form.current.email?.value    || "",
-      subject:  form.current.subject?.value  || "",
-      fullmsg:  form.current.fullmsg?.value  || "",
-    };
-
     try {
-      const response = await fetch("http://localhost:3000/submit", {
+      const res = await fetch("/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "contact",
+          username:  form.current.username?.value  || "",
+          email:     form.current.email?.value     || "",
+          subject:   form.current.subject?.value   || "",
+          fullmsg:   form.current.fullmsg?.value   || "",
+        }),
       });
-      if (!response.ok) throw new Error(`Status ${response.status}`);
-      await response.json().catch(() => ({}));
+      if (!res.ok) throw new Error(`Status ${res.status}`);
       toast.success("Message sent!");
       form.current.reset();
     } catch (err) {
       console.error("Send error:", err);
+      setFormError("Failed to send. Try emailing directly: anshshinde449@gmail.com");
       toast.error("Failed to send message");
     } finally {
       setSending(false);
@@ -578,150 +460,313 @@ const ContactSection = () => {
   };
 
   return (
-    <section className="section" id="contact" aria-label="Contact">
-      <div className="container">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOpts}
-          variants={stagger}
-        >
-          <motion.span className="section-label" variants={fadeUp}>Contact</motion.span>
-          <motion.h2 className="contact-cta" variants={fadeUp}>
-            Let&apos;s build something <span>interesting.</span>
-          </motion.h2>
-          <motion.p className="section-subtitle" variants={fadeUp}>
-            Open for full-time roles, internships, and collaboration on meaningful
-            projects. Based in Mumbai — open to remote and relocation.
-          </motion.p>
+    <section id="contact" aria-label="Contact">
+      <h2 className="section-heading">Contact</h2>
+      <p className="section-body" style={{ marginBottom: "24px" }}>
+        Open for full-time engineering roles, backend/AI internships, and collaboration
+        on interesting problems. Based in Mumbai — open to remote and relocation.
+      </p>
 
-          <div className="contact-grid">
-            {/* Links */}
-            <motion.div className="contact-links" variants={fadeUp}>
-              {contactLinks.map((link, i) => (
-                <a
-                  key={i}
-                  id={`contact-link-${link.label.toLowerCase()}`}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-link-row"
-                >
-                  <div className="contact-link-icon">
-                    <link.icon />
-                  </div>
-                  <div>
-                    <span className="contact-link-label">{link.label}</span>
-                    <span className="contact-link-value">{link.value}</span>
-                  </div>
-                </a>
-              ))}
-            </motion.div>
+      {/* Contact links */}
+      <nav className="contact-links" aria-label="Contact links">
+        {CONTACT_LINKS.map(link => (
+          <a
+            key={link.id}
+            id={`contact-link-${link.id}`}
+            href={link.href}
+            target={link.href.startsWith("mailto") ? undefined : "_blank"}
+            rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+            className="contact-link-row"
+            aria-label={link.ariaLabel}
+          >
+            <div className="contact-link-icon" aria-hidden="true">
+              <link.icon />
+            </div>
+            <span className="contact-link-label">{link.label}</span>
+            <span className="contact-link-value">{link.value}</span>
+            <span className="contact-link-arrow" aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </nav>
 
-            {/* Form */}
-            <motion.form
-              ref={form}
-              onSubmit={send}
-              className="contact-form-wrap"
-              variants={fadeUp}
-            >
-              <div className="form-row">
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Full name"
-                  className="form-field-new"
-                  required
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email address"
-                  className="form-field-new"
-                  required
-                />
-              </div>
+      {/* Contact form — submits to Netlify Forms */}
+      <form
+        ref={form}
+        onSubmit={send}
+        className="contact-form"
+        aria-label="Send a message"
+        noValidate
+      >
+        {/* Hidden field required by Netlify Forms */}
+        <input type="hidden" name="form-name" value="contact" />
+        {/* Honeypot — leave empty to catch bots */}
+        <p hidden><label>Don't fill this out: <input name="bot-field" /></label></p>
+
+        <div className="contact-form-header">Send a message</div>
+        <div className="contact-form-body">
+          {formError && (
+            <div role="alert" style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--text-xl)",
+              color: "#ff6b6b",
+              background: "rgba(255,107,107,0.08)",
+              border: "1px solid rgba(255,107,107,0.2)",
+              borderRadius: "var(--radius-sm)",
+              padding: "10px 14px",
+            }}>
+              {formError}
+            </div>
+          )}
+
+          <div className="contact-form-row">
+            <div className="form-field-wrap">
+              <label htmlFor="contact-name" className="form-field-label">Name</label>
               <input
-                name="subject"
-                placeholder="Subject"
-                className="form-field-new"
+                id="contact-name"
+                name="username"
+                type="text"
+                className="form-input"
+                placeholder="Your name"
                 required
+                autoComplete="name"
               />
-              <textarea
-                name="fullmsg"
-                placeholder="Your message…"
-                rows="5"
-                className="form-field-new"
+            </div>
+            <div className="form-field-wrap">
+              <label htmlFor="contact-email" className="form-field-label">Email</label>
+              <input
+                id="contact-email"
+                name="email"
+                type="email"
+                className="form-input"
+                placeholder="you@example.com"
                 required
+                autoComplete="email"
               />
-              <input type="hidden" name="time" value={new Date().toLocaleString()} />
-              <button
-                id="contact-send-btn"
-                type="submit"
-                className="send-btn-new"
-                disabled={sending}
-              >
-                {sending ? "Sending…" : "✉ Send Message"}
-              </button>
-            </motion.form>
+            </div>
           </div>
-        </motion.div>
-      </div>
+
+          <div className="form-field-wrap">
+            <label htmlFor="contact-subject" className="form-field-label">Subject</label>
+            <input
+              id="contact-subject"
+              name="subject"
+              type="text"
+              className="form-input"
+              placeholder="What's this about?"
+              required
+            />
+          </div>
+
+          <div className="form-field-wrap">
+            <label htmlFor="contact-message" className="form-field-label">Message</label>
+            <textarea
+              id="contact-message"
+              name="fullmsg"
+              className="form-input"
+              placeholder="Your message…"
+              rows={5}
+              required
+            />
+          </div>
+
+          <button
+            id="contact-send-btn"
+            type="submit"
+            className="form-submit-btn"
+            disabled={sending}
+            aria-busy={sending}
+          >
+            {sending ? "Sending…" : "Send Message"}
+          </button>
+        </div>
+      </form>
     </section>
   );
-};
+}
 
-/* ══════════════════════════════════════════════════════════
-   HOME (root page — assembles all sections)
-══════════════════════════════════════════════════════════ */
-const Home = () => (
-  <>
-    <Toaster
-      position="top-right"
-      toastOptions={{
-        style: {
-          background: "var(--surface)",
-          color:      "var(--text-primary)",
-          border:     "1px solid var(--border)",
-          fontFamily: "var(--font-body)",
-          fontSize:   "0.87rem",
-        },
-      }}
-    />
+/* ──────────────────────────────────────────────────────────
+   FLOATING DOCK NAVIGATION
+   ────────────────────────────────────────────────────────── */
+function Dock() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const close = () => setMenuOpen(false);
 
-    <Navbar />
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    close();
+  };
 
-    <main>
-      <HeroSection />
+  const navItems = [
+    { id: "home-btn",       icon: FaHome,       label: "Top",        onClick: () => { window.scrollTo({ top: 0, behavior: "smooth" }); close(); } },
+    { id: "about-nav-btn",  icon: FaUser,       label: "About",      onClick: () => scrollTo("about") },
+    { id: "projects-nav",   icon: FaCode,       label: "Projects",   onClick: () => scrollTo("projects") },
+    { id: "skills-nav",     icon: FaLayerGroup, label: "Skills",     onClick: () => scrollTo("skills") },
+    { id: "experience-nav", icon: FaBriefcase,  label: "Exp",        onClick: () => scrollTo("experience") },
+    { id: "contact-nav",    icon: FaEnvelope,   label: "Contact",    onClick: () => scrollTo("contact") },
+  ];
 
-      <hr className="section-divider" />
-      <AboutSection />
+  const externalItems = [
+    { id: "github-dock",   icon: FaGithub,   label: "GitHub",   href: "https://github.com/AnshShinde2007" },
+    { id: "linkedin-dock", icon: FaLinkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/ansh-shinde-73137b282/" },
+    { id: "email-dock",    icon: FaEnvelope, label: "Email",    href: "mailto:anshshinde449@gmail.com" },
+    { id: "resume-dock",   icon: FaFileAlt,  label: "Resume",   href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
+  ];
 
-      <hr className="section-divider" />
-      <SkillsSection />
+  return (
+    <>
+      {/* ─── Desktop pill dock ─── */}
+      <nav className="dock dock--desktop" aria-label="Quick navigation dock">
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            id={item.id}
+            className="dock-btn dock-btn-tooltip"
+            data-tooltip={item.label}
+            onClick={item.onClick}
+            aria-label={item.label}
+          >
+            <item.icon aria-hidden="true" />
+          </button>
+        ))}
+        <div className="dock-divider" aria-hidden="true" />
+        {externalItems.map(item => (
+          <a
+            key={item.id}
+            id={item.id}
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dock-btn dock-btn-tooltip"
+            data-tooltip={item.label}
+            aria-label={`${item.label} (opens in new tab)`}
+          >
+            <item.icon aria-hidden="true" />
+          </a>
+        ))}
+      </nav>
 
-      <hr className="section-divider" />
-      <ProjectsSection />
+      {/* ─── Mobile hamburger dock ─── */}
+      <div className="dock--mobile">
+        {/* Backdrop */}
+        {menuOpen && (
+          <div className="dock-mobile-overlay" onClick={close} aria-hidden="true" />
+        )}
 
-      <hr className="section-divider" />
-      <ExperienceSection />
+        {/* Slide-up nav sheet */}
+        <nav
+          id="dock-mobile-menu"
+          className={`dock-mobile-menu${menuOpen ? " dock-mobile-menu--open" : ""}`}
+          aria-label="Site navigation"
+          aria-hidden={!menuOpen}
+        >
+          <div className="dock-mobile-menu-handle" aria-hidden="true" />
+          <div className="dock-mobile-nav-grid">
+            {navItems.map(item => (
+              <button
+                key={`m-${item.id}`}
+                className="dock-mobile-nav-item"
+                onClick={item.onClick}
+                aria-label={item.label}
+                tabIndex={menuOpen ? 0 : -1}
+              >
+                <item.icon className="dock-mobile-nav-icon" aria-hidden="true" />
+                <span className="dock-mobile-nav-label">{item.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="dock-mobile-section-divider" aria-hidden="true" />
+          <div className="dock-mobile-external-row">
+            {externalItems.map(item => (
+              <a
+                key={`m-ext-${item.id}`}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="dock-mobile-ext-item"
+                aria-label={`${item.label} (opens in new tab)`}
+                onClick={close}
+                tabIndex={menuOpen ? 0 : -1}
+              >
+                <item.icon aria-hidden="true" />
+                <span className="dock-mobile-nav-label">{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </nav>
 
-      <hr className="section-divider" />
-      <DashboardSection />
-
-      <hr className="section-divider" />
-      <ContactSection />
-    </main>
-
-    <footer className="footer">
-      <div className="container">
-        <p className="footer-text">
-          Designed &amp; built by <span>Ansh Shinde</span> ·
-          React + Vite · Deployed on Vercel
-        </p>
+        {/* Hamburger trigger */}
+        <button
+          id="dock-hamburger-btn"
+          className="dock-hamburger"
+          onClick={() => setMenuOpen(v => !v)}
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={menuOpen}
+          aria-controls="dock-mobile-menu"
+        >
+          {menuOpen ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
+        </button>
       </div>
-    </footer>
-  </>
-);
+    </>
+  );
+}
 
-export default Home;
+/* ──────────────────────────────────────────────────────────
+   HOME — root assembly
+   ────────────────────────────────────────────────────────── */
+export default function Home() {
+  return (
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "rgba(20,20,20,0.95)",
+            color: "rgba(245,244,240,0.9)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: "13px",
+            borderRadius: "8px",
+          },
+        }}
+      />
+
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+
+      <main id="main-content" className="page-shell">
+        <Hero />
+
+        <hr className="section-divider" />
+        <About />
+
+        <hr className="section-divider" />
+        <Skills />
+
+        <hr className="section-divider" />
+        <Projects />
+
+        <hr className="section-divider" />
+        <Experience />
+
+        <hr className="section-divider" />
+        <Contact />
+
+        <footer className="footer" role="contentinfo">
+          <p className="footer-text">
+            Ansh Shinde · Mumbai, India ·{" "}
+            <a
+              href="https://github.com/AnshShinde2007"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "inherit", textDecoration: "none" }}
+              aria-label="GitHub profile (opens in new tab)"
+            >
+              GitHub ↗
+            </a>
+          </p>
+        </footer>
+      </main>
+
+      <Dock />
+    </>
+  );
+}

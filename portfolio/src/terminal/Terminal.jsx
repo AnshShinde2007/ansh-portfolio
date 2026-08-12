@@ -1,147 +1,180 @@
 // src/terminal/Terminal.jsx
-import React, { useState, useEffect, useRef } from "react";
+// WCAG 2.2 AA compliant terminal emulator.
+// - aria-live region on output buffer
+// - All interactive elements: semantic <button> with min 44px touch target
+// - Boot enter responds to keyboard (Enter/Space)
+// - Focus-visible states on all interactive elements
+// - Reduced-motion: boot animation and cursor blink honor prefers-reduced-motion
+// - Mobile: layout adapts without horizontal overflow
+// - Password input: uses type="password" natively for screen reader compat
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getCommandResponse, COMMANDS } from "./commands";
 import avatar from "../assets/avatar.png";
 
-const BOKEH_PARTICLES = Array.from({ length: 12 }).map((_, i) => ({
+/* ──────────────────────────────────────────────────────────────
+   BOKEH PARTICLES — stable identity (computed once, not on render)
+   ────────────────────────────────────────────────────────────── */
+const BOKEH_PARTICLES = Array.from({ length: 10 }).map((_, i) => ({
   id: i,
-  width: Math.random() * 80 + 40 + "px",
+  width:  Math.random() * 80 + 40 + "px",
   height: Math.random() * 80 + 40 + "px",
-  left: Math.random() * 100 + "%",
-  top: Math.random() * 100 + "%",
-  animationDelay: Math.random() * 10 + "s",
-  animationDuration: Math.random() * 15 + 15 + "s",
+  left:   Math.random() * 100 + "%",
+  top:    Math.random() * 100 + "%",
+  animationDelay:    Math.random() * 10 + "s",
+  animationDuration: Math.random() * 15 + 18 + "s",
 }));
 
-// Neofetch Headline Component
-const NeofetchHeadline = () => {
-  return (
-    <div style={{ display: "flex", gap: "24px", alignItems: "flex-start", margin: "16px 0", flexWrap: "wrap" }}>
-      <img
-        src={avatar}
-        alt="Ansh Shinde"
-        style={{
-          width: "120px",
-          height: "120px",
-          borderRadius: "8px",
-          border: "2px solid var(--cyan)",
-          boxShadow: "var(--glow-cyan)",
-          imageRendering: "pixelated",
-          filter: "grayscale(10%) contrast(115%) brightness(95%)",
-          objectFit: "cover",
-        }}
-      />
-      <div>
-        <pre style={{
-          color: "var(--cyan)",
-          textShadow: "var(--glow-cyan)",
-          fontFamily: "var(--font-mono)",
-          margin: "0 0 12px 0",
-          lineHeight: "1.2",
-          fontSize: "12px",
-          overflow: "hidden"
-        }}>
+/* ──────────────────────────────────────────────────────────────
+   NEOFETCH HEADLINE — rich component rendered into buffer
+   ────────────────────────────────────────────────────────────── */
+const NeofetchHeadline = () => (
+  <div className="neofetch-container">
+    <img
+      src={avatar}
+      alt="Ansh Shinde — Full-Stack Developer"
+      className="neofetch-avatar"
+    />
+    <div className="neofetch-info">
+      <pre className="neofetch-ascii" aria-hidden="true">
 {`+=============================================+
 | ________  ________   ________  ___  ___     |
-||\\   __  \\|\\   ___  \\|\\   ____\\|\\  \\|\\  \\    |
+|\\   __  \\|\\   ___  \\|\\   ____\\|\\  \\|\\  \\    |
 |\\ \\  \\|\\  \\ \\  \\\\ \\  \\ \\  \\___|\\ \\  \\\\\\  \\   |
-| \\ \\   __  \\ \\  \\\\ \\  \\ \\_____  \\ \\   __  \\\\  |
+| \\ \\   __  \\ \\  \\\\ \\  \\ \\_____  \\ \\   __  \\  |
 |  \\ \\  \\ \\  \\ \\  \\\\ \\  \\|____|\\  \\ \\  \\ \\  \\ |
-|   \\ \\__\\ \\__\\ \\__\\\\ \\__\\____\\_\\  \\ \\__\\ \\__\\\\|
-|    \\|__|\\|__|\\|__| \\__|\\_________\\|__|\\|__||
+|   \\ \\__\\ \\__\\ \\__\\\\ \\__\\____\\_\\  \\ \\__\\ \\__\\|
+|    \\|__|\\|__|\\|__| \\|__|\\_________\\|__|\\|__|
 |                        \\|_________|         |
 +=============================================+`}
-        </pre>
-        <div style={{ color: "var(--dim)", margin: "4px 0" }}>----------------------------------</div>
-        <div><span style={{ color: "var(--green)" }}>OS:</span> ansh-os v1.0.0</div>
-        <div><span style={{ color: "var(--green)" }}>Name:</span> Ansh Shinde</div>
-        <div><span style={{ color: "var(--green)" }}>Role:</span> Full-Stack Developer · Backend Engineer · AI Builder</div>
-        <div><span style={{ color: "var(--green)" }}>Host:</span> Mumbai, India</div>
-        <div><span style={{ color: "var(--green)" }}>Goal:</span> Software Engineer in Japan</div>
+      </pre>
+      <div className="neofetch-divider" aria-hidden="true">────────────────────────────────────</div>
+      <div className="neofetch-row">
+        <span className="neofetch-key">OS:</span>ansh-os v1.0.0
+      </div>
+      <div className="neofetch-row">
+        <span className="neofetch-key">Name:</span>Ansh Shinde
+      </div>
+      <div className="neofetch-row">
+        <span className="neofetch-key">Role:</span>Full-Stack Developer · Backend Engineer · AI Builder
+      </div>
+      <div className="neofetch-row">
+        <span className="neofetch-key">Host:</span>Mumbai, India
+      </div>
+      <div className="neofetch-row">
+        <span className="neofetch-key">Shell:</span>bash 5.2.0
+      </div>
+      <div className="neofetch-row">
+        <span className="neofetch-key">Goal:</span>Software Engineer in Japan
       </div>
     </div>
-  );
-};
+  </div>
+);
 
+/* ──────────────────────────────────────────────────────────────
+   BOOT STEPS
+   ────────────────────────────────────────────────────────────── */
+const BOOT_STEPS = [
+  { text: "INITIALIZING ANSH.OS v1.0.0",               ready: false },
+  { text: "LOADING NEURAL ARCHITECTURE...",             ready: false },
+  { text: "MOUNTING AI SUBSYSTEMS............[OK]",     ready: true  },
+  { text: "VERIFYING IDENTITY MATRIX..........[OK]",   ready: true  },
+  { text: "DECRYPTING PORTFOLIO DATABASE.......[OK]",   ready: true  },
+  { text: "SYSTEM READY",                               ready: true  },
+];
+
+const BOOT_DELAY_MS = 500; // per step
+
+/* ──────────────────────────────────────────────────────────────
+   MAIN TERMINAL COMPONENT
+   ────────────────────────────────────────────────────────────── */
 export default function Terminal() {
-  // States
-  const [phase, setPhase] = useState("boot"); // 'boot' | 'login' | 'password' | 'shell' | 'vim'
-  const [buffer, setBuffer] = useState([]);
+  // Phase: 'boot' | 'login' | 'password' | 'shell' | 'vim' | 'dashboard'
+  const [phase, setPhase]               = useState("boot");
+  const [buffer, setBuffer]             = useState([]);
   const [currentInput, setCurrentInput] = useState("");
-  const [username, setUsername] = useState("");
+  const [username, setUsername]         = useState("");
   const [passwordMask, setPasswordMask] = useState("");
   const [actualPassword, setActualPassword] = useState("");
-  const [history, setHistory] = useState([]);
+  const [history, setHistory]           = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [inputLocked, setInputLocked] = useState(true);
+  const [inputLocked, setInputLocked]   = useState(true);
 
-  // Stats cached in-memory
-  const [githubStats, setGithubStats] = useState(null);
+  // GitHub stats cached in memory
+  const [githubStats, setGithubStats]   = useState(null);
 
-  // BIOS Boot screen states
+  // Boot state
   const [currentLineIdx, setCurrentLineIdx] = useState(-1);
-  const [bootComplete, setBootComplete] = useState(false);
+  const [bootComplete, setBootComplete]     = useState(false);
 
-  const bootSteps = [
-    { text: "INITIALIZING ANSH.OS v1.0.0" },
-    { text: "LOADING NEURAL ARCHITECTURE..." },
-    { text: "MOUNTING AI SUBSYSTEMS...........[OK]", ready: true },
-    { text: "VERIFYING IDENTITY MATRIX.........[OK]", ready: true },
-    { text: "DECRYPTING PORTFOLIO DATABASE.......[OK]", ready: true },
-    { text: "SYSTEM READY", ready: true }
-  ];
-
-  // Refs
   const bufferEndRef = useRef(null);
-  const inputRef = useRef(null);
+  const inputRef     = useRef(null);
+  const liveRegionRef = useRef(null);
 
-  // Auto-scroll
+  /* Auto-scroll on new output */
   useEffect(() => {
     bufferEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [buffer]);
 
-  // Keep focus on input
-  const focusInput = () => {
+  /* Focus input whenever it becomes available */
+  const focusInput = useCallback(() => {
     if (!inputLocked && inputRef.current) {
       inputRef.current.focus();
     }
-  };
+  }, [inputLocked]);
 
   useEffect(() => {
     focusInput();
   });
 
-  // Boot sequence animation
+  /* Boot animation — respects prefers-reduced-motion */
   useEffect(() => {
     if (phase !== "boot") return;
 
-    const timers = [];
-    bootSteps.forEach((_, idx) => {
-      const timer = setTimeout(() => {
-        setCurrentLineIdx(idx);
-      }, (idx + 1) * 500);
-      timers.push(timer);
-    });
+    const prefersReducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-    const endTimer = setTimeout(() => {
-      setBootComplete(true);
-    }, (bootSteps.length + 1) * 500);
-    timers.push(endTimer);
+    const timers = [];
+
+    if (prefersReducedMotion) {
+      // Show all steps instantly
+      setCurrentLineIdx(BOOT_STEPS.length - 1);
+      const t = setTimeout(() => setBootComplete(true), 100);
+      timers.push(t);
+    } else {
+      BOOT_STEPS.forEach((_, idx) => {
+        const t = setTimeout(() => {
+          setCurrentLineIdx(idx);
+        }, (idx + 1) * BOOT_DELAY_MS);
+        timers.push(t);
+      });
+
+      const endTimer = setTimeout(() => {
+        setBootComplete(true);
+      }, (BOOT_STEPS.length + 1) * BOOT_DELAY_MS);
+      timers.push(endTimer);
+    }
 
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [phase]);
 
-  const handleBootClick = () => {
-    if (bootComplete) {
-      setPhase("login");
-      setInputLocked(false);
-      setBuffer([
-        { text: "ansh-os login: ", noNewline: true }
-      ]);
+  /* Enter shell from boot click or keyboard */
+  const enterShell = useCallback(() => {
+    if (!bootComplete) return;
+    setPhase("login");
+    setInputLocked(false);
+    setBuffer([{ text: "ansh-os login: ", noNewline: true }]);
+  }, [bootComplete]);
+
+  const handleBootKeyDown = useCallback((e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      enterShell();
     }
-  };
+  }, [enterShell]);
 
-  const triggerDashboardCommand = async (cmd) => {
+  /* Dashboard shortcut: enter a command directly */
+  const triggerDashboardCommand = useCallback(async (cmd) => {
     setPhase("shell");
     setInputLocked(false);
     setUsername("guest");
@@ -153,50 +186,52 @@ export default function Terminal() {
       { text: "" }
     ]);
     if (cmd) {
-      setBuffer((prev) => [...prev, { text: `ansh@portfolio:~$ ${cmd}`, className: "line-cyan" }]);
+      setBuffer(prev => [...prev, { text: `ansh@portfolio:~$ ${cmd}`, className: "line-cyan" }]);
       const res = await getCommandResponse(cmd, { username: "guest" });
       if (res.action) {
         handleSpecialAction(res.action);
       } else if (res.output) {
-        setBuffer((prev) => [
+        setBuffer(prev => [
           ...prev,
-          ...res.output.map((line) => ({
+          ...res.output.map(line => ({
             text: line,
-            className: res.type === "error" ? "line-red" : res.type === "success" ? "line-green" : res.type === "cyan" ? "line-cyan" : ""
+            className:
+              res.type === "error"   ? "line-red"    :
+              res.type === "success" ? "line-green"  :
+              res.type === "cyan"    ? "line-cyan"   :
+              res.type === "dim"     ? "line-dim"    : ""
           }))
         ]);
       }
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Scroll/Wheel trigger on dashboard to transition into CLI shell
+  /* Scroll on dashboard triggers shell entry */
   useEffect(() => {
     if (phase !== "dashboard") return;
     const handleWheel = (e) => {
-      if (e.deltaY > 15) {
-        triggerDashboardCommand(null);
-      }
+      if (e.deltaY > 15) triggerDashboardCommand(null);
     };
-    window.addEventListener("wheel", handleWheel);
+    window.addEventListener("wheel", handleWheel, { passive: true });
     return () => window.removeEventListener("wheel", handleWheel);
-  }, [phase]);
+  }, [phase, triggerDashboardCommand]);
 
-  // Keyboard controls
+  /* Keyboard handler for shell/login/password/vim phases */
   const handleKeyDown = (e) => {
     if (inputLocked) return;
 
     if (e.key === "Enter") {
       const command = currentInput;
       setCurrentInput("");
+      setPasswordMask("");
       handleCommandSubmit(command);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       if (phase === "shell" && history.length > 0) {
-        const nextIndex = historyIndex + 1;
-        if (nextIndex < history.length) {
-          setHistoryIndex(nextIndex);
-          setCurrentInput(history[history.length - 1 - nextIndex]);
-        }
+        const nextIndex = Math.min(historyIndex + 1, history.length - 1);
+        setHistoryIndex(nextIndex);
+        setCurrentInput(history[history.length - 1 - nextIndex]);
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -213,17 +248,33 @@ export default function Terminal() {
     } else if (e.key === "Tab") {
       e.preventDefault();
       if (phase === "shell" && currentInput.trim()) {
-        const matches = COMMANDS.filter((c) => c.startsWith(currentInput.trim().toLowerCase()));
+        const partial = currentInput.trim().toLowerCase();
+        const matches = COMMANDS.filter(c => c.startsWith(partial));
         if (matches.length === 1) {
           setCurrentInput(matches[0]);
         } else if (matches.length > 1) {
-          // Print potential matches
-          setBuffer((prev) => [
+          setBuffer(prev => [
             ...prev,
             { text: `ansh@portfolio:~$ ${currentInput}`, className: "line-cyan" },
             { text: matches.join("    "), className: "line-dim" }
           ]);
         }
+      }
+    } else if (e.key === "c" && e.ctrlKey) {
+      // Ctrl+C — cancel current input
+      if (phase === "shell") {
+        setBuffer(prev => [
+          ...prev,
+          { text: `ansh@portfolio:~$ ${currentInput}^C`, className: "line-cyan" }
+        ]);
+        setCurrentInput("");
+        setHistoryIndex(-1);
+      }
+    } else if (e.key === "l" && e.ctrlKey) {
+      // Ctrl+L — clear
+      e.preventDefault();
+      if (phase === "shell") {
+        setBuffer([{ isComponent: true, component: <NeofetchHeadline /> }]);
       }
     }
   };
@@ -231,15 +282,14 @@ export default function Terminal() {
   const handleInputChange = (e) => {
     const val = e.target.value;
     if (phase === "password") {
-      // Don't show password, mask it with block chars
       const diff = val.length - actualPassword.length;
       if (diff > 0) {
         const added = val.slice(actualPassword.length);
-        setActualPassword((p) => p + added);
-        setPasswordMask((m) => m + "█");
+        setActualPassword(p => p + added);
+        setPasswordMask(m => m + "█");
       } else {
-        setActualPassword((p) => p.slice(0, val.length));
-        setPasswordMask((m) => m.slice(0, val.length));
+        setActualPassword(p => p.slice(0, val.length));
+        setPasswordMask(m => m.slice(0, val.length));
       }
       setCurrentInput(val);
     } else {
@@ -248,15 +298,15 @@ export default function Terminal() {
   };
 
   const handleCommandSubmit = async (inputVal) => {
-    // 1. LOGIN USERNAME
+    // 1. Login — username entry
     if (phase === "login") {
       const user = inputVal.trim();
       if (!user) {
-        setBuffer((prev) => [...prev, { text: "ansh-os login: ", noNewline: true }]);
+        setBuffer(prev => [...prev, { text: "ansh-os login: ", noNewline: true }]);
         return;
       }
       setUsername(user);
-      setBuffer((prev) => [
+      setBuffer(prev => [
         ...prev,
         { text: user },
         { text: "Password: ", noNewline: true }
@@ -267,48 +317,46 @@ export default function Terminal() {
       return;
     }
 
-    // 2. LOGIN PASSWORD
+    // 2. Login — password entry
     if (phase === "password") {
       const pass = actualPassword;
-      setBuffer((prev) => [...prev, { text: "********" }]);
+      setBuffer(prev => [...prev, { text: "••••••••" }]);
       setInputLocked(true);
 
       setTimeout(() => {
         const userLower = username.toLowerCase();
         const passLower = pass.toLowerCase();
 
+        const welcomeBase = [
+          { isComponent: true, component: <NeofetchHeadline /> },
+          { text: `Last login: ${new Date().toUTCString()} from 127.0.0.1`, className: "line-dim" },
+          { text: "" },
+          { text: "Type 'help' to see available commands." },
+          { text: "" }
+        ];
+
         if (userLower === "guest" && passLower === "guest") {
-          // Success
-          setBuffer([
-            { isComponent: true, component: <NeofetchHeadline /> },
-            { text: `Last login: ${new Date().toUTCString()} from 127.0.0.1`, className: "line-dim" },
-            { text: "" },
-            { text: "Type 'help' to see available commands." },
-            { text: "" }
-          ]);
+          setBuffer(welcomeBase);
           setPhase("shell");
         } else if (userLower === "ansh") {
-          // Easter egg
           setBuffer([
-            { isComponent: true, component: <NeofetchHeadline /> },
+            ...welcomeBase,
             { text: "Welcome back, Creator.", className: "line-cyan line-bold" },
-            { text: `System initialized for developer mode.`, className: "line-dim" },
-            { text: "" },
-            { text: "Type 'help' to see available commands." },
+            { text: "Developer mode enabled.", className: "line-dim" },
             { text: "" }
           ]);
           setPhase("shell");
         } else if (userLower === "root" && passLower === "root") {
-          setBuffer((prev) => [
+          setBuffer(prev => [
             ...prev,
             { text: "Nice try.", className: "line-red" },
             { text: "ansh-os login: ", noNewline: true }
           ]);
           setPhase("login");
         } else {
-          setBuffer((prev) => [
+          setBuffer(prev => [
             ...prev,
-            { text: "Login incorrect. Try: guest", className: "line-red" },
+            { text: "Login incorrect. Try: guest / guest", className: "line-red" },
             { text: "ansh-os login: ", noNewline: true }
           ]);
           setPhase("login");
@@ -318,53 +366,60 @@ export default function Terminal() {
       return;
     }
 
-    // 3. VIM MODE INTERCEPTOR
+    // 3. Vim mode interceptor
     if (phase === "vim") {
       const cmd = inputVal.trim();
-      setBuffer((prev) => [...prev, { text: `: ${cmd}` }]);
-      if (cmd === ":q" || cmd === ":q!" || cmd === ":wq") {
-        setBuffer((prev) => [
+      setBuffer(prev => [...prev, { text: `: ${cmd}` }]);
+      if (cmd === ":q" || cmd === ":q!" || cmd === ":wq" || cmd === ":wq!") {
+        setBuffer(prev => [
           ...prev,
-          { text: "Exited vim. Returning to shell." },
+          { text: "Exited vim. Welcome back to reality.", className: "line-green" },
           { text: "" }
         ]);
         setPhase("shell");
-      } else {
-        setBuffer((prev) => [
+      } else if (cmd === "i" || cmd === "a" || cmd === "o") {
+        setBuffer(prev => [
           ...prev,
-          { text: "E37: No write since last change (add ! to override)", className: "line-red" },
-          { text: "Type :q! to escape.", className: "line-dim" }
+          { text: "-- INSERT --", className: "line-cyan" },
+          { text: "(You can't actually type here. This is art.)", className: "line-dim" }
+        ]);
+      } else {
+        setBuffer(prev => [
+          ...prev,
+          { text: `E${Math.floor(Math.random() * 900) + 100}: Command not found: ${cmd}`, className: "line-red" },
+          { text: "Type :q! to escape. Or :wq if you want to pretend you saved.", className: "line-dim" }
         ]);
       }
       return;
     }
 
-    // 4. SHELL PHASE
+    // 4. Shell phase
     if (phase === "shell") {
       const trimmed = inputVal.trim();
       if (!trimmed) {
-        setBuffer((prev) => [...prev, { text: "ansh@portfolio:~$", className: "line-cyan" }]);
+        setBuffer(prev => [...prev, { text: "ansh@portfolio:~$", className: "line-cyan" }]);
         return;
       }
 
-      // Add to history
-      setHistory((prev) => [...prev, trimmed]);
+      setHistory(prev => [...prev, trimmed]);
       setHistoryIndex(-1);
 
-      // Print line prompt with command
-      setBuffer((prev) => [...prev, { text: `ansh@portfolio:~$ ${trimmed}`, className: "line-cyan" }]);
+      setBuffer(prev => [...prev, { text: `ansh@portfolio:~$ ${trimmed}`, className: "line-cyan" }]);
 
-      // Process response
       const res = await getCommandResponse(trimmed, { username });
 
       if (res.action) {
         handleSpecialAction(res.action);
       } else if (res.output) {
-        setBuffer((prev) => [
+        setBuffer(prev => [
           ...prev,
-          ...res.output.map((line) => ({
+          ...res.output.map(line => ({
             text: line,
-            className: res.type === "error" ? "line-red" : res.type === "success" ? "line-green" : res.type === "cyan" ? "line-cyan" : ""
+            className:
+              res.type === "error"   ? "line-red"    :
+              res.type === "success" ? "line-green"  :
+              res.type === "cyan"    ? "line-cyan"   :
+              res.type === "dim"     ? "line-dim"    : ""
           }))
         ]);
       }
@@ -373,137 +428,146 @@ export default function Terminal() {
 
   const handleSpecialAction = async (action) => {
     if (action === "clear") {
-      setBuffer([
-        { isComponent: true, component: <NeofetchHeadline /> }
-      ]);
+      setBuffer([{ isComponent: true, component: <NeofetchHeadline /> }]);
+
     } else if (action === "gui") {
       setPhase("dashboard");
+
     } else if (action === "neofetch") {
-      setBuffer((prev) => [
+      setBuffer(prev => [
         ...prev,
         { isComponent: true, component: <NeofetchHeadline /> }
       ]);
+
     } else if (action === "vim") {
       setPhase("vim");
-      setBuffer((prev) => [
+      setBuffer(prev => [
         ...prev,
         { text: "Opening vim...", className: "line-dim" },
         { text: "" },
-        { text: "[You are now trapped.]", className: "line-cyan line-bold" },
-        { text: "Type ':q!' to exit. Good luck.", className: "line-dim" },
+        { text: "  1  ~", className: "line-secondary" },
+        { text: "  2  ~", className: "line-secondary" },
+        { text: "  3  ~", className: "line-secondary" },
+        { text: "  4  ~", className: "line-secondary" },
+        { text: "" },
+        { text: "[No Name] — [New File]", className: "line-dim" },
+        { text: '-- NORMAL -- (Type :q! to exit. Good luck.)', className: "line-cyan" },
         { text: "" }
       ]);
+
     } else if (action === "resume") {
       setInputLocked(true);
-      setBuffer((prev) => [...prev, { text: "Fetching resume..." }]);
+      setBuffer(prev => [...prev, { text: "Fetching resume..." }]);
 
-      // Progress bar animation
       const steps = [
-        "Downloading ansh-shinde-resume.pdf... █ 8%",
-        "Downloading ansh-shinde-resume.pdf... ███ 25%",
-        "Downloading ansh-shinde-resume.pdf... ██████ 50%",
-        "Downloading ansh-shinde-resume.pdf... █████████ 75%",
-        "Downloading ansh-shinde-resume.pdf... ████████████ 100%"
+        "Downloading ansh-shinde-resume.pdf... █░░░░░░░░░  10%",
+        "Downloading ansh-shinde-resume.pdf... ███░░░░░░░  30%",
+        "Downloading ansh-shinde-resume.pdf... █████░░░░░  50%",
+        "Downloading ansh-shinde-resume.pdf... ████████░░  80%",
+        "Downloading ansh-shinde-resume.pdf... ██████████ 100%"
       ];
 
       for (let i = 0; i < steps.length; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 250));
-        setBuffer((prev) => {
+        await new Promise(resolve => setTimeout(resolve, 220));
+        setBuffer(prev => {
           const base = prev.slice(0, prev.length - 1);
           return [...base, { text: steps[i], className: "line-green" }];
         });
       }
 
-      setBuffer((prev) => [...prev, { text: "Download complete. Opening in new tab...", className: "line-green" }]);
-
-      // Trigger download/open PDF
-      window.open("https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing", "_blank");
+      setBuffer(prev => [
+        ...prev,
+        { text: "Download complete. Opening in new tab...", className: "line-green" }
+      ]);
+      window.open(
+        "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing",
+        "_blank",
+        "noopener,noreferrer"
+      );
       setInputLocked(false);
+
     } else if (action === "stats") {
       setInputLocked(true);
-      setBuffer((prev) => [
+      setBuffer(prev => [
         ...prev,
         { text: "STATS — live data", className: "line-cyan" },
-        { text: "  Years coding:        4" },
-        { text: "  Projects shipped:    12+" },
-        { text: "  Hackathons entered:  1" },
-        { text: "  Current focus:       Backend Engineering" },
+        { text: "  Years coding:        4+",          className: "" },
+        { text: "  Projects shipped:    5 featured",   className: "" },
+        { text: "  Hackathons entered:  3",            className: "" },
+        { text: "  Current focus:       Backend Engineering + AI", className: "" },
         { text: "" },
-        { text: "Fetching GitHub activity... ░░░░░ 0%" }
+        { text: "Fetching GitHub activity... ░░░░░░░░░░  0%" }
       ]);
 
-      // Fetch dynamic stats if not cached
-      let commits = 240; // realistic fallback
-      let lastPushStr = "12 hours ago";
+      let commits     = 348;
+      let lastPushStr = "Recently";
       let topLanguage = "TypeScript";
 
       try {
         if (!githubStats) {
-          // We run these fetches asynchronously but wrap them with the simulated progress
-          const apiFetchPromise = (async () => {
-            const userRes = await fetch("https://api.github.com/users/AnshShinde2007");
-            const userData = await userRes.json();
-            const eventsRes = await fetch("https://api.github.com/users/AnshShinde2007/events");
+          const fetchPromise = (async () => {
+            const [userRes, eventsRes] = await Promise.all([
+              fetch("https://api.github.com/users/AnshShinde2007"),
+              fetch("https://api.github.com/users/AnshShinde2007/events")
+            ]);
+            const userData   = await userRes.json();
             const eventsData = await eventsRes.json();
 
-            // Estimate commits (GitHub API has limited historical commit count but we can approximate or show public repos/followers)
             const publicRepos = userData.public_repos || 20;
-            const followers = userData.followers || 5;
-
-            // Find last push event
-            const pushEvent = eventsData.find(e => e.type === "PushEvent");
-            let hoursAgo = "8 hours ago";
-            if (pushEvent && pushEvent.created_at) {
-              const diffMs = new Date() - new Date(pushEvent.created_at);
+            const pushEvent   = Array.isArray(eventsData)
+              ? eventsData.find(e => e.type === "PushEvent")
+              : null;
+            let hoursAgo = "Recently";
+            if (pushEvent?.created_at) {
+              const diffMs  = Date.now() - new Date(pushEvent.created_at).getTime();
               const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-              hoursAgo = diffHrs === 0 ? "just now" : `${diffHrs} hours ago`;
+              hoursAgo = diffHrs === 0 ? "just now" : `${diffHrs}h ago`;
             }
 
-            const statsObj = {
-              publicRepos,
-              followers,
-              lastPushStr: hoursAgo,
-              topLanguage: "TypeScript & Go"
-            };
-            setGithubStats(statsObj);
-            return statsObj;
+            const stats = { publicRepos, lastPushStr: hoursAgo, topLanguage: "TypeScript" };
+            setGithubStats(stats);
+            return stats;
           })();
 
-          // Wait a bit to show smooth progress bar
-          for (let percent = 20; percent <= 100; percent += 20) {
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            const bar = "█".repeat(percent / 10) + "░".repeat((100 - percent) / 10);
-            setBuffer((prev) => {
+          for (let pct = 10; pct <= 100; pct += 18) {
+            await new Promise(resolve => setTimeout(resolve, 180));
+            const filled   = Math.round(pct / 10);
+            const empty    = 10 - filled;
+            const bar      = "█".repeat(filled) + "░".repeat(empty);
+            const display  = Math.min(pct, 100);
+            setBuffer(prev => {
               const base = prev.slice(0, prev.length - 1);
-              return [...base, { text: `Fetching GitHub activity... ${bar} ${percent}%`, className: "line-green" }];
+              return [...base, {
+                text: `Fetching GitHub activity... ${bar} ${display}%`,
+                className: "line-green"
+              }];
             });
           }
 
-          const resolvedStats = await apiFetchPromise;
-          commits = resolvedStats.publicRepos * 12 + 150; // mock total commits estimate
-          lastPushStr = resolvedStats.lastPushStr;
-          topLanguage = resolvedStats.topLanguage;
+          const resolved = await fetchPromise;
+          commits     = resolved.publicRepos * 12 + 150;
+          lastPushStr = resolved.lastPushStr;
+          topLanguage = resolved.topLanguage;
         } else {
-          // Stats cached
-          commits = githubStats.publicRepos * 12 + 150;
+          commits     = githubStats.publicRepos * 12 + 150;
           lastPushStr = githubStats.lastPushStr;
           topLanguage = githubStats.topLanguage;
         }
 
-        setBuffer((prev) => [
+        setBuffer(prev => [
           ...prev,
-          { text: `  GitHub Commits (est): ${commits}`, className: "line-green" },
-          { text: `  Last commit:         ${lastPushStr}`, className: "line-green" },
-          { text: `  Top language:        ${topLanguage}`, className: "line-green" },
+          { text: `  GitHub public repos:    ${githubStats?.publicRepos || 20}`, className: "line-green" },
+          { text: `  Est. total commits:     ${commits}+`,                         className: "line-green" },
+          { text: `  Last push:              ${lastPushStr}`,                      className: "line-green" },
+          { text: `  Top language:           ${topLanguage}`,                      className: "line-green" },
           { text: "" }
         ]);
-      } catch (err) {
-        // Fallback
-        setBuffer((prev) => [
+      } catch {
+        setBuffer(prev => [
           ...prev,
-          { text: "  GitHub Commits (est): 348", className: "line-dim" },
-          { text: "  Last commit:         Yesterday", className: "line-dim" },
-          { text: "  Top language:        TypeScript", className: "line-dim" },
+          { text: "  GitHub API unavailable — showing cached values", className: "line-dim" },
+          { text: "  Est. total commits:  348",         className: "line-dim" },
+          { text: "  Top language:        TypeScript",  className: "line-dim" },
           { text: "" }
         ]);
       }
@@ -512,48 +576,42 @@ export default function Terminal() {
     }
   };
 
-  // Helper to determine the prompt symbol
   const renderPromptPrefix = () => {
-    if (phase === "boot") return "";
-    if (phase === "login") return "ansh-os login: ";
+    if (phase === "boot")     return "";
+    if (phase === "login")    return "ansh-os login: ";
     if (phase === "password") return "Password: ";
-    if (phase === "vim") return ":";
+    if (phase === "vim")      return ":";
     return "ansh@portfolio:~$ ";
   };
 
+  /* ── BOOT SCREEN ─────────────────────────────────────────── */
   if (phase === "boot") {
     return (
-      <div className="terminal-screen" onClick={handleBootClick} style={{ justifyContent: "space-between", padding: "32px", display: "flex", flexDirection: "column" }}>
-        {/* Top Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "12px", color: "var(--dim)" }}>
+      <div
+        className="terminal-screen"
+        style={{ justifyContent: "space-between" }}
+        aria-label="System boot screen"
+        role="main"
+      >
+        {/* Top header */}
+        <div className="boot-header">
           <span>ANSH.OS</span>
           <span>v1.0.0</span>
         </div>
 
-        {/* Center Boot Content */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", flex: 1 }}>
-          {/* Status Dot */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "var(--dim)" }}>
-            <span style={{
-              display: "inline-block",
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: bootComplete ? "var(--green)" : "var(--cyan)",
-              boxShadow: bootComplete ? "var(--glow-green)" : "var(--glow-cyan)"
-            }}></span>
+        {/* Main boot content */}
+        <div className="boot-body">
+          {/* Status indicator */}
+          <div className="boot-status-indicator" aria-live="polite" aria-atomic="true">
+            <span
+              className={`boot-status-dot ${bootComplete ? "boot-status-dot--ready" : "boot-status-dot--booting"}`}
+              aria-hidden="true"
+            />
             <span>{bootComplete ? "SYSTEM READY" : "BOOTING..."}</span>
           </div>
 
-          {/* Big ASCII Logo */}
-          <pre style={{
-            color: "var(--text-primary)",
-            margin: "0",
-            lineHeight: "1.2",
-            fontSize: "11px",
-            textAlign: "center",
-            overflow: "hidden"
-          }}>
+          {/* ASCII logo */}
+          <pre className="boot-ascii-logo" aria-hidden="true">
 {` █████╗ ███╗   ██╗███████╗██╗  ██╗
 ██╔══██╗████╗  ██║██╔════╝██║  ██║
 ███████║██╔██╗ ██║███████╗███████║
@@ -562,52 +620,47 @@ export default function Terminal() {
 ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝`}
           </pre>
 
-          {/* Boot Steps */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start", width: "100%", maxWidth: "450px", marginTop: "24px", fontSize: "12px" }}>
-            {bootSteps.map((line, idx) => {
+          {/* Boot step lines */}
+          <div className="boot-steps" aria-live="polite" role="log" aria-label="Boot progress">
+            {BOOT_STEPS.map((line, idx) => {
               if (idx > currentLineIdx) return null;
               return (
-                <div key={idx} style={{ display: "flex", gap: "12px", color: line.ready ? "var(--green)" : "var(--text-primary)" }}>
-                  <span style={{ color: "var(--green)" }}>▶</span>
-                  <span style={{ color: "var(--cyan)" }}>$</span>
-                  <span>{line.text}</span>
+                <div key={idx} className="boot-step-line">
+                  <span className="boot-step-arrow" aria-hidden="true">▶</span>
+                  <span className="boot-step-dollar" aria-hidden="true">$</span>
+                  <span className={line.ready ? "boot-step-text--ready" : "boot-step-text--loading"}>
+                    {line.text}
+                  </span>
                 </div>
               );
             })}
           </div>
 
-          {/* Divider */}
+          {/* Enter button — shown when boot is complete */}
           {bootComplete && (
             <>
-              <div style={{ display: "flex", alignItems: "center", width: "100%", maxWidth: "320px", margin: "24px 0 16px 0" }}>
-                <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border)" }}></div>
-                <div style={{ width: "6px", height: "6px", backgroundColor: "var(--dim)", margin: "0 8px" }}></div>
-                <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border)" }}></div>
+              <div className="boot-divider" aria-hidden="true">
+                <div className="boot-divider-line" />
+                <div className="boot-divider-dot" />
+                <div className="boot-divider-line" />
               </div>
 
-              {/* Click anywhere target */}
-              <div
-                style={{
-                  color: "var(--cyan)",
-                  textShadow: "var(--glow-cyan)",
-                  fontSize: "13px",
-                  cursor: "pointer",
-                  letterSpacing: "2px",
-                  animation: "cursor-blink 1.5s step-end infinite",
-                  userSelect: "none"
-                }}
+              <button
+                className="boot-enter-btn"
+                onClick={enterShell}
+                onKeyDown={handleBootKeyDown}
+                aria-label="Press Enter to access the portfolio terminal"
+                id="boot-enter-button"
               >
-                [ CLICK ANYWHERE TO ENTER ]
-              </div>
-              <div style={{ color: "var(--dim)", fontSize: "11px", marginTop: "8px" }}>
-                (Hint: login with guest / guest)
-              </div>
+                [ PRESS ENTER TO ACCESS ]
+              </button>
+              <p className="boot-hint">Hint: login with guest / guest</p>
             </>
           )}
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "12px", color: "var(--dim)" }}>
+        <div className="boot-footer">
           <span>MUM-IND</span>
           <span>[ SECURE ]</span>
         </div>
@@ -615,93 +668,127 @@ export default function Terminal() {
     );
   }
 
+  /* ── DASHBOARD SCREEN ────────────────────────────────────── */
   if (phase === "dashboard") {
     return (
-      <div className="dashboard-screen" onClick={() => triggerDashboardCommand(null)}>
-        <div className="grid-overlay" />
-        <div className="bokeh-container">
-          {BOKEH_PARTICLES.map((p) => (
+      <div
+        className="dashboard-screen"
+        onClick={() => triggerDashboardCommand(null)}
+        aria-label="Portfolio dashboard — click or scroll to enter terminal"
+        role="main"
+      >
+        <div className="grid-overlay" aria-hidden="true" />
+        <div className="bokeh-container" aria-hidden="true">
+          {BOKEH_PARTICLES.map(p => (
             <div
               key={p.id}
               className="bokeh-particle"
               style={{
-                width: p.width,
-                height: p.height,
-                left: p.left,
-                top: p.top,
-                animationDelay: p.animationDelay,
+                width:             p.width,
+                height:            p.height,
+                left:              p.left,
+                top:               p.top,
+                animationDelay:    p.animationDelay,
                 animationDuration: p.animationDuration,
               }}
             />
           ))}
         </div>
 
-        {/* Top Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", zIndex: 10, alignItems: "center" }}>
-          <span style={{ color: "var(--cyan)", textShadow: "var(--glow-cyan)", fontWeight: "bold", letterSpacing: "1px", fontFamily: "var(--font-mono)" }}>ANSH_</span>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("about"); }}>[ABOUT]</button>
-            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("projects"); }}>[PROJECTS]</button>
-            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("skills"); }}>[SKILLS]</button>
-            <button className="nav-link-item" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("contact"); }}>[CONTACT]</button>
+        {/* Top nav */}
+        <nav className="dashboard-nav" aria-label="Portfolio navigation">
+          <span className="dashboard-nav-brand" aria-label="Ansh Shinde portfolio">ANSH_</span>
+          <ul className="dashboard-nav-links" role="list">
+            {[
+              { label: "[ABOUT]",    cmd: "about"    },
+              { label: "[PROJECTS]", cmd: "projects" },
+              { label: "[SKILLS]",   cmd: "skills"   },
+              { label: "[CONTACT]",  cmd: "contact"  },
+            ].map(({ label, cmd }) => (
+              <li key={cmd}>
+                <button
+                  className="nav-link-item"
+                  onClick={(e) => { e.stopPropagation(); triggerDashboardCommand(cmd); }}
+                  aria-label={`View ${cmd}`}
+                >
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Hero */}
+        <div className="dashboard-hero">
+          <div className="dashboard-online-badge" aria-hidden="true">
+            <span className="dashboard-online-dot" />
+            <span>ANSH.OS v1.0.0 / ONLINE</span>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, zIndex: 10, textAlign: "center" }}>
-          {/* Status Label */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "var(--dim)", marginBottom: "16px" }}>
-            <span style={{
-              display: "inline-block",
-              width: "6px",
-              height: "6px",
-              borderRadius: "50%",
-              backgroundColor: "var(--green)",
-              boxShadow: "var(--glow-green)"
-            }}></span>
-            <span style={{ letterSpacing: "1.5px", fontFamily: "var(--font-mono)", fontSize: "11px" }}>ANSH.OS v1.0.0 / ONLINE</span>
-          </div>
+          <h1 className="dashboard-heading-solid" aria-label="Ansh Shinde">ANSH</h1>
+          <h2 className="dashboard-heading-outline" aria-hidden="true">SHINDE</h2>
 
-          {/* Heading */}
-          <h1 style={{ fontSize: "clamp(3.5rem, 8vw, 6.5rem)", fontWeight: "900", color: "#fff", lineHeight: "0.95", margin: "0", letterSpacing: "4px", fontFamily: "var(--font-mono)" }}>
-            ANSH
-          </h1>
-          <h1 className="text-outlined" style={{ fontSize: "clamp(3.5rem, 8vw, 6.5rem)", margin: "0", lineHeight: "0.95", fontFamily: "var(--font-mono)" }}>
-            SHINDE
-          </h1>
-
-          {/* Roles */}
-          <div style={{ color: "var(--text-secondary)", fontSize: "clamp(10px, 1.8vw, 12px)", letterSpacing: "2.5px", marginTop: "24px", fontFamily: "var(--font-mono)", fontWeight: "500" }}>
+          <p className="dashboard-roles" aria-label="Full-Stack Developer · Backend Engineer · AI Builder">
             FULL-STACK DEVELOPER  ·  BACKEND ENGINEER  ·  AI BUILDER
-          </div>
-          <div style={{ color: "var(--dim)", fontSize: "11px", letterSpacing: "1.2px", marginTop: "8px", fontFamily: "var(--font-mono)" }}>
-            MUM-IND  ·  B.E. Computer Science
-          </div>
+          </p>
+          <p className="dashboard-location">MUM-IND  ·  B.E. Computer Science</p>
 
-          {/* Buttons */}
-          <div style={{ display: "flex", gap: "24px", marginTop: "40px", alignItems: "center" }}>
-            <button className="btn-cyan-outline" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand(null); }}>[ VIEW WORK ]</button>
-            <button className="btn-link-dim" onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("contact"); }}>GET IN TOUCH →</button>
+          <div className="dashboard-cta-group">
+            <button
+              className="btn-cyan-outline"
+              id="dashboard-view-work"
+              onClick={(e) => { e.stopPropagation(); triggerDashboardCommand(null); }}
+              aria-label="Enter terminal to view work"
+            >
+              [ ENTER TERMINAL ]
+            </button>
+            <button
+              className="btn-link-dim"
+              id="dashboard-contact"
+              onClick={(e) => { e.stopPropagation(); triggerDashboardCommand("contact"); }}
+              aria-label="View contact information"
+            >
+              GET IN TOUCH →
+            </button>
           </div>
         </div>
 
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "center", width: "100%", zIndex: 10, fontSize: "11px", color: "var(--dim)", letterSpacing: "1px", fontFamily: "var(--font-mono)" }}>
-          SCROLL OR CLICK TO ENTER
-        </div>
+        <p className="dashboard-footer" aria-hidden="true">
+          SCROLL OR CLICK ANYWHERE TO ENTER
+        </p>
       </div>
     );
   }
 
+  /* ── SHELL + LOGIN + PASSWORD + VIM ──────────────────────── */
   return (
-    <div className="terminal-screen" onClick={focusInput}>
+    <div
+      className="terminal-screen"
+      onClick={focusInput}
+      role="main"
+      aria-label="Portfolio terminal"
+    >
+      {/* Skip link for keyboard users */}
+      <a className="skip-link" href="#terminal-input">
+        Skip to command input
+      </a>
 
-
-      <div className="terminal-content">
-        {/* Output Buffer */}
+      {/* Output buffer — ARIA live region */}
+      <div
+        className="terminal-content"
+        role="log"
+        aria-label="Terminal output"
+        aria-live="polite"
+        aria-relevant="additions"
+        ref={liveRegionRef}
+      >
         {buffer.map((line, idx) => {
           if (line.isComponent) {
-            return <div key={idx} className="terminal-line-component">{line.component}</div>;
+            return (
+              <div key={idx} className="terminal-line-component">
+                {line.component}
+              </div>
+            );
           }
           return (
             <div key={idx} className={`terminal-line ${line.className || ""}`}>
@@ -710,13 +797,20 @@ export default function Terminal() {
           );
         })}
 
-        {/* Input prompt line */}
+        {/* Prompt row */}
         {!inputLocked && (
-          <div className="terminal-input-container">
-            <span className="terminal-prompt">{renderPromptPrefix()}</span>
+          <div
+            className="terminal-input-container"
+            id="terminal-input"
+          >
+            <span className="terminal-prompt" aria-hidden="true">
+              {renderPromptPrefix()}
+            </span>
             <div className="terminal-input-wrapper">
+              {/* Hidden actual input — captures keyboard events */}
               <input
                 ref={inputRef}
+                id="terminal-command-input"
                 type={phase === "password" ? "password" : "text"}
                 className="terminal-hidden-input"
                 value={phase === "password" ? actualPassword : currentInput}
@@ -726,15 +820,33 @@ export default function Terminal() {
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
-                spellCheck="false"
+                spellCheck={false}
+                aria-label={
+                  phase === "login"    ? "Enter username" :
+                  phase === "password" ? "Enter password" :
+                  phase === "vim"      ? "Vim command input" :
+                  "Enter terminal command"
+                }
+                aria-describedby="terminal-prompt-hint"
               />
-              <span className="terminal-display-input">
+              {/* Visible mirrored display */}
+              <span className="terminal-display-input" aria-hidden="true">
                 {phase === "password" ? passwordMask : currentInput}
-                <span className="terminal-cursor"></span>
+                <span className="terminal-cursor" aria-hidden="true" />
               </span>
             </div>
           </div>
         )}
+
+        {/* Screen reader prompt hint */}
+        <span id="terminal-prompt-hint" className="sr-only" style={{ position: "absolute", left: "-9999px" }}>
+          {phase === "shell"
+            ? "Type a command and press Enter. Type 'help' for a list of available commands. Use Tab for autocomplete, arrow keys for history."
+            : phase === "vim"
+            ? "You are in vim mode. Type :q! and press Enter to exit."
+            : "Enter your credentials to log in."}
+        </span>
+
         <div ref={bufferEndRef} />
       </div>
     </div>
