@@ -4,7 +4,9 @@ import React, { useRef, useState } from "react";
 import {
   FaGithub, FaLinkedin, FaEnvelope, FaFileAlt,
   FaHome, FaMapMarkerAlt, FaExternalLinkAlt,
+  FaUser, FaCode, FaBriefcase, FaLayerGroup,
 } from "react-icons/fa";
+import avatarImg from "../assets/avatar.jpg";
 import toast, { Toaster } from "react-hot-toast";
 
 /* ──────────────────────────────────────────────────────────
@@ -15,132 +17,137 @@ const PROJECTS = [
   {
     id: "agentpulse",
     title: "AgentPulse",
-    subtitle: "AI Observability Platform",
-    year: "2025",
+    subtitle: "AI-Native Observability Platform",
+    year: "2026",
     tags: ["FastAPI", "OpenTelemetry", "Next.js"],
-    tagExtra: 2,
+    tagExtra: 3,
     github: "https://github.com/AnshShinde2007/AgentPulse",
-    preview: `> POST /v1/traces
-  span_id: a3f92c1
-  agent: recommend-jobs
-  tokens: 1,247
-  latency: 312ms
-  status: OK
+    preview: `$ agentpulse observe
 
-> GET /dashboard
-  spans: 142
-  cost: $0.031
-  p95: 420ms`,
+agent: research-agent
+status: HEALTHY
+
+traces: streaming...
+cost_watchdog: active
+sre_sidekick: active
+
+> anomaly detected
+> initiating recovery...
+> recovered ✓`,
   },
   {
-    id: "job-recommender",
-    title: "Job Recommender",
-    subtitle: "Semantic Job Matching Engine",
-    year: "2025",
-    tags: ["Next.js", "Node.js", "pgvector"],
+    id: "huh",
+    title: "Huh?",
+    subtitle: "Context-Aware AI Reading Assistant",
+    year: "2026",
+    tags: ["AI", "Browser Extension", "JavaScript"],
+    tagExtra: 1,
+    github: "https://github.com/AnshShinde2007",
+    preview: `$ huh explain "vector embedding"
+
+reading page context...
+
+context found ✓
+generating explanation...
+
+> A vector embedding is a numerical
+> representation of meaning...`,
+  },
+  {
+    id: "resumeai",
+    title: "ResumeAI",
+    subtitle: "AI-Powered Resume & Job Intelligence",
+    year: "2026",
+    tags: ["FastAPI", "React", "AI"],
     tagExtra: 2,
     github: "https://github.com/AnshShinde2007",
-    preview: `> Parsing resume...
-> Skills extracted:
-  [React, Node.js, PostgreSQL]
-> Embedding vector...
-> Similarity search:
-  match_score: 0.94
-  role: Backend Engineer
-✓ done in 312ms`,
+    preview: `$ resumeai analyze resume.pdf
+
+parsing resume...       ✓
+extracting skills...    ✓
+generating embeddings.. ✓
+
+match_score: 87%
+
+> Backend Developer
+> AI Engineer
+> Full Stack (supporting)`,
+
   },
   {
-    id: "repo-assistant",
-    title: "Repo Assistant",
-    subtitle: "Codebase RAG Chat",
-    year: "2024",
-    tags: ["OpenAI", "React", "Node.js"],
+    id: "standbyme",
+    title: "StandByMe",
+    subtitle: "Local-First Smart Dashboard",
+    year: "2026",
+    tags: ["React Native", "Expo", "SQLite"],
     tagExtra: 2,
     github: "https://github.com/AnshShinde2007",
-    preview: `> repo: AnshShinde2007/project
-> indexing 142 files... done
+    preview: `$ standby start
 
-Q: "How does auth work?"
+database: LOCAL
+cloud_dependency: NONE
 
-A: JWT validated in
-   middleware/auth.js:23
-   RS256 + refresh cycle
+orientation_engine ✓
+widget_engine      ✓
+media_session      ✓
 
-> 3 files referenced`,
-  },
-  {
-    id: "url-shortener",
-    title: "URL Shortener",
-    subtitle: "System Design Showcase",
-    year: "2024",
-    tags: ["Node.js", "Redis", "PostgreSQL"],
-    tagExtra: 0,
-    github: "https://github.com/AnshShinde2007",
-    preview: `> POST /api/shorten
-  ✓ cached in Redis   (2ms)
-  ✓ rate limit: 98/100
-
-> Analytics:
-  clicks today: 1,247
-  unique users:    891
-  cache hit:       94%
-  p99 latency:    8ms`,
+dashboard ready.`,
   },
 ];
 
 const EXPERIENCE = [
   {
-    id: "soul-yatri",
-    abbr: "SY",
-    title: "Flutter Developer",
-    org: "Soul Yatri",
-    year: "'25 – now",
-    desc: "Building the frontend of a mental wellness app from 0 to production. Integrated empathy voice APIs and real-time data features.",
+    id: "freelance",
+    abbr: "FS",
+    title: "Backend & AI Developer",
+    org: "Freelance & Independent Projects",
+    year: "2024 — Present",
+    desc: "Building full-stack applications, AI systems, APIs, developer tools, and production websites while experimenting with modern backend and AI architectures.",
     badge: "Production",
+  },
+  {
+    id: "internship",
+    abbr: "IN",
+    title: "Software Development Intern",
+    org: "Industry",
+    year: "2025 — 2026",
+    desc: "Worked on real-world development projects while gaining experience with production workflows, APIs, databases, debugging, and collaborative development.",
+    badge: null,
   },
   {
     id: "hackathons",
     abbr: "HK",
-    title: "Hackathon Engineer",
-    org: "3 Competitions",
-    year: "2024",
-    desc: "Shipped production-ready applications under 24–48 hour constraints. 1st place in the AI track.",
-    badge: "1st Place",
-  },
-  {
-    id: "oss",
-    abbr: "OS",
-    title: "Open Source Contributor",
-    org: "GitHub · @AnshShinde2007",
-    year: "'23 – now",
-    desc: "Backend templates, AI integration patterns, and system-design demonstrations. Active contributor.",
-    badge: null,
+    title: "Hackathon Developer",
+    org: "3+ Competitions",
+    year: "2024 — Present",
+    desc: "Built rapid prototypes and production-style systems under strict time constraints across AI, web development, and product engineering.",
+    badge: "3× Hackathons",
   },
 ];
 
 const SKILLS = [
   {
     label: "Backend",
-    items: ["Node.js", "Express", "FastAPI", "PostgreSQL", "Redis", "MongoDB", "REST APIs", "JWT Auth"],
+    items: ["Node.js", "Express", "FastAPI", "Python", "REST APIs", "PostgreSQL", "MongoDB", "SQLite", "Firebase"],
   },
   {
     label: "Frontend",
-    items: ["React", "Next.js", "TypeScript", "Flutter", "Tailwind CSS", "Vite"],
+    items: ["React", "Next.js", "React Native", "Expo", "TypeScript", "JavaScript", "Tailwind CSS", "shadcn/ui"],
   },
   {
     label: "AI / ML",
-    items: ["OpenAI APIs", "RAG", "pgvector", "AI Agents", "LangChain", "OpenTelemetry", "OTLP"],
+    items: ["LLM APIs", "AI Agents", "RAG", "Embeddings", "Vector Search", "Prompt Engineering", "NLP", "AI Tooling"],
   },
   {
-    label: "DevOps",
-    items: ["Docker", "AWS", "Linux", "Git", "CI/CD", "Nginx"],
+    label: "DevOps / Systems",
+    items: ["Docker", "Git", "GitHub", "OpenTelemetry", "GCP", "Linux", "Vercel", "Netlify", "Render"],
   },
 ];
 
 const STATS = [
-  { value: "4+", label: "Years" },
-  { value: "5", label: "Projects" },
-  { value: "3", label: "Hackathons" },
+  { value: "3+",   label: "Years Building" },
+  { value: "8+",   label: "Projects Shipped" },
+  { value: "3+",   label: "Hackathons" },
   { value: "500+", label: "Commits" },
 ];
 
@@ -207,20 +214,34 @@ function Hero() {
         </svg>
       </div>
 
-      <h1 className="hero-name">
-        Ansh<br />Shinde<sup>io</sup>
-      </h1>
+      {/* Name + avatar side-by-side */}
+      <div className="hero-identity-row">
+        <div className="hero-content">
+          <h1 className="hero-name">
+            Ansh<br />Shinde<sup>io</sup>
+          </h1>
 
-      <p className="hero-role">Full Stack Developer &amp; AI Engineer</p>
+          <p className="hero-role">Backend Developer &amp; AI Engineer</p>
 
-      <div className="hero-meta">
-        <div className="hero-meta-item hero-location">
-          <FaMapMarkerAlt className="hero-location-icon" aria-hidden="true" />
-          <span>INDIA</span>
+          <div className="hero-meta">
+            <div className="hero-meta-item hero-location">
+              <FaMapMarkerAlt className="hero-location-icon" aria-hidden="true" />
+              <span>INDIA</span>
+            </div>
+            <div className="hero-meta-item hero-status">
+              <span className="hero-status-dot" aria-hidden="true" />
+              <span>OPEN TO WORK</span>
+            </div>
+          </div>
         </div>
-        <div className="hero-meta-item hero-status">
-          <span className="hero-status-dot" aria-hidden="true" />
-          <span>OPEN TO WORK</span>
+
+        <div className="hero-avatar-wrap" aria-hidden="true">
+          <img
+            src={avatarImg}
+            alt="Ansh Shinde"
+            className="hero-avatar"
+            draggable="false"
+          />
         </div>
       </div>
 
@@ -229,11 +250,12 @@ function Hero() {
         <div className="hero-hud-card-dot">
           <span /><span /><span />
         </div>
-        {`> ssh ansh@portfolio\n`}
-        {`  Connecting to Mumbai, India...\n`}
-        {`  Authenticated. System ready.\n`}
-        {`  Last commit: 2h ago\n`}
-        {`  Status: Building AgentPulse v2`}
+        {`$ ssh ansh@portfolio\n\n`}
+        {`Connected to ansh.dev\n\n`}
+        {`> role\nBackend Developer + AI Engineer\n\n`}
+        {`> focus\nBackend Systems · AI Systems · Developer Tools\n\n`}
+        {`> currently_building\nAgentPulse\n\n`}
+        {`> status\nOpen to interesting problems.`}
       </div>
     </section>
   );
@@ -250,27 +272,18 @@ function About() {
       <div>
         <h3 className="section-subheading">Background</h3>
         <p className="section-body">
-          Final-year B.E. Computer Science student from Mumbai. Started with HTML and CSS,
-          got immediately pulled into backend architecture. That habit of thinking through
-          a system before writing any code has stuck, and I apply it to everything I build.
-        </p>
-        <p className="section-body">
-          Long-term goal: Software Engineer in Japan. Current focus: ship software that
-          holds up under real use, not just in demos.
+          I'm a Computer Engineering student and developer focused on building systems
+          that go beyond basic CRUD applications. I work across backend engineering,
+          AI systems, developer tooling, and full-stack products.
         </p>
       </div>
 
       <div style={{ marginTop: "32px" }}>
         <h3 className="section-subheading">What I Build</h3>
         <p className="section-body">
-          Backend side: REST APIs, auth systems, caching layers, PostgreSQL data models.
-          I pay attention to the details most people skip — rate limiting, connection pooling,
-          error handling that actually communicates what went wrong.
-        </p>
-        <p className="section-body">
-          AI side: RAG pipelines, agent frameworks, observability tooling for LLM applications.
-          I build things that are debuggable. If an agent fails at 2am, I want to know exactly
-          which span, what cost, and why.
+          AI-powered products, backend systems, and developer tools — with an emphasis
+          on architecture and real-world usability. My projects range from AI observability
+          and document intelligence to local-first applications and production web platforms.
         </p>
       </div>
 
@@ -418,16 +431,16 @@ function Contact() {
 
     const data = {
       username: form.current.username?.value || "",
-      email:    form.current.email?.value    || "",
-      subject:  form.current.subject?.value  || "",
-      fullmsg:  form.current.fullmsg?.value  || "",
+      email: form.current.email?.value || "",
+      subject: form.current.subject?.value || "",
+      fullmsg: form.current.fullmsg?.value || "",
     };
 
     try {
       const res = await fetch("http://localhost:3000/submit", {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(data),
+        body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       toast.success("Message sent!");
@@ -570,19 +583,19 @@ function Dock() {
   };
 
   const navItems = [
-    { id: "home-btn",       icon: FaHome,       tooltip: "Top",        onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }), href: null },
-    { id: "about-nav-btn",  icon: null,          tooltip: "About",      onClick: () => scrollTo("about"),      icon_text: "ⓘ" },
-    { id: "projects-nav",   icon: null,          tooltip: "Projects",   onClick: () => scrollTo("projects"),   icon_text: "◫" },
-    { id: "skills-nav",     icon: null,          tooltip: "Skills",     onClick: () => scrollTo("skills"),     icon_text: "◈" },
-    { id: "experience-nav", icon: null,          tooltip: "Experience", onClick: () => scrollTo("experience"), icon_text: "▦" },
-    { id: "contact-nav",    icon: null,          tooltip: "Contact",    onClick: () => scrollTo("contact"),    icon_text: "✉" },
+    { id: "home-btn", icon: FaHome, tooltip: "Top", onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+    { id: "about-nav-btn", icon: FaUser, tooltip: "About", onClick: () => scrollTo("about") },
+    { id: "projects-nav", icon: FaCode, tooltip: "Projects", onClick: () => scrollTo("projects") },
+    { id: "skills-nav", icon: FaLayerGroup, tooltip: "Skills", onClick: () => scrollTo("skills") },
+    { id: "experience-nav", icon: FaBriefcase, tooltip: "Experience", onClick: () => scrollTo("experience") },
+    { id: "contact-nav", icon: FaEnvelope, tooltip: "Contact", onClick: () => scrollTo("contact") },
   ];
 
   const externalItems = [
-    { id: "github-dock",   icon: FaGithub,   tooltip: "GitHub",   href: "https://github.com/AnshShinde2007" },
+    { id: "github-dock", icon: FaGithub, tooltip: "GitHub", href: "https://github.com/AnshShinde2007" },
     { id: "linkedin-dock", icon: FaLinkedin, tooltip: "LinkedIn", href: "https://www.linkedin.com/in/ansh-shinde-73137b282/" },
-    { id: "email-dock",    icon: FaEnvelope, tooltip: "Email",    href: "mailto:anshshinde449@gmail.com" },
-    { id: "resume-dock",   icon: FaFileAlt,  tooltip: "Resume",   href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
+    { id: "email-dock", icon: FaEnvelope, tooltip: "Email", href: "mailto:anshshinde449@gmail.com" },
+    { id: "resume-dock", icon: FaFileAlt, tooltip: "Resume", href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
   ];
 
   return (
@@ -596,10 +609,7 @@ function Dock() {
           onClick={item.onClick}
           aria-label={item.tooltip}
         >
-          {item.icon
-            ? <item.icon aria-hidden="true" />
-            : <span aria-hidden="true" style={{ fontSize: "14px" }}>{item.icon_text}</span>
-          }
+          <item.icon aria-hidden="true" />
         </button>
       ))}
 
