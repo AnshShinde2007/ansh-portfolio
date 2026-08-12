@@ -20,6 +20,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <!-- Netlify Forms detection — must be static HTML so Netlify's build bot finds it -->
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="text"  name="username" />
+      <input type="email" name="email" />
+      <input type="text"  name="subject" />
+      <textarea name="fullmsg"></textarea>
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -5,6 +5,7 @@ import {
   FaGithub, FaLinkedin, FaEnvelope, FaFileAlt,
   FaHome, FaMapMarkerAlt, FaExternalLinkAlt,
   FaUser, FaCode, FaBriefcase, FaLayerGroup,
+  FaBars, FaTimes,
 } from "react-icons/fa";
 import avatarImg from "../assets/avatar.jpg";
 import toast, { Toaster } from "react-hot-toast";
@@ -423,24 +424,28 @@ function Contact() {
   const [sending, setSending] = useState(false);
   const [formError, setFormError] = useState("");
 
+  const encode = (data) =>
+    Object.keys(data)
+      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
+      .join("&");
+
   const send = async (e) => {
     e.preventDefault();
     setFormError("");
     if (!form.current) return;
     setSending(true);
 
-    const data = {
-      username: form.current.username?.value || "",
-      email: form.current.email?.value || "",
-      subject: form.current.subject?.value || "",
-      fullmsg: form.current.fullmsg?.value || "",
-    };
-
     try {
-      const res = await fetch("http://localhost:3000/submit", {
+      const res = await fetch("/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "contact",
+          username:  form.current.username?.value  || "",
+          email:     form.current.email?.value     || "",
+          subject:   form.current.subject?.value   || "",
+          fullmsg:   form.current.fullmsg?.value   || "",
+        }),
       });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       toast.success("Message sent!");
@@ -484,7 +489,7 @@ function Contact() {
         ))}
       </nav>
 
-      {/* Contact form */}
+      {/* Contact form — submits to Netlify Forms */}
       <form
         ref={form}
         onSubmit={send}
@@ -492,6 +497,11 @@ function Contact() {
         aria-label="Send a message"
         noValidate
       >
+        {/* Hidden field required by Netlify Forms */}
+        <input type="hidden" name="form-name" value="contact" />
+        {/* Honeypot — leave empty to catch bots */}
+        <p hidden><label>Don't fill this out: <input name="bot-field" /></label></p>
+
         <div className="contact-form-header">Send a message</div>
         <div className="contact-form-body">
           {formError && (
@@ -578,58 +588,125 @@ function Contact() {
    FLOATING DOCK NAVIGATION
    ────────────────────────────────────────────────────────── */
 function Dock() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const close = () => setMenuOpen(false);
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    close();
   };
 
   const navItems = [
-    { id: "home-btn", icon: FaHome, tooltip: "Top", onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
-    { id: "about-nav-btn", icon: FaUser, tooltip: "About", onClick: () => scrollTo("about") },
-    { id: "projects-nav", icon: FaCode, tooltip: "Projects", onClick: () => scrollTo("projects") },
-    { id: "skills-nav", icon: FaLayerGroup, tooltip: "Skills", onClick: () => scrollTo("skills") },
-    { id: "experience-nav", icon: FaBriefcase, tooltip: "Experience", onClick: () => scrollTo("experience") },
-    { id: "contact-nav", icon: FaEnvelope, tooltip: "Contact", onClick: () => scrollTo("contact") },
+    { id: "home-btn",       icon: FaHome,       label: "Top",        onClick: () => { window.scrollTo({ top: 0, behavior: "smooth" }); close(); } },
+    { id: "about-nav-btn",  icon: FaUser,       label: "About",      onClick: () => scrollTo("about") },
+    { id: "projects-nav",   icon: FaCode,       label: "Projects",   onClick: () => scrollTo("projects") },
+    { id: "skills-nav",     icon: FaLayerGroup, label: "Skills",     onClick: () => scrollTo("skills") },
+    { id: "experience-nav", icon: FaBriefcase,  label: "Exp",        onClick: () => scrollTo("experience") },
+    { id: "contact-nav",    icon: FaEnvelope,   label: "Contact",    onClick: () => scrollTo("contact") },
   ];
 
   const externalItems = [
-    { id: "github-dock", icon: FaGithub, tooltip: "GitHub", href: "https://github.com/AnshShinde2007" },
-    { id: "linkedin-dock", icon: FaLinkedin, tooltip: "LinkedIn", href: "https://www.linkedin.com/in/ansh-shinde-73137b282/" },
-    { id: "email-dock", icon: FaEnvelope, tooltip: "Email", href: "mailto:anshshinde449@gmail.com" },
-    { id: "resume-dock", icon: FaFileAlt, tooltip: "Resume", href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
+    { id: "github-dock",   icon: FaGithub,   label: "GitHub",   href: "https://github.com/AnshShinde2007" },
+    { id: "linkedin-dock", icon: FaLinkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/ansh-shinde-73137b282/" },
+    { id: "email-dock",    icon: FaEnvelope, label: "Email",    href: "mailto:anshshinde449@gmail.com" },
+    { id: "resume-dock",   icon: FaFileAlt,  label: "Resume",   href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
   ];
 
   return (
-    <nav className="dock" aria-label="Quick navigation dock">
-      {navItems.map(item => (
+    <>
+      {/* ─── Desktop pill dock ─── */}
+      <nav className="dock dock--desktop" aria-label="Quick navigation dock">
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            id={item.id}
+            className="dock-btn dock-btn-tooltip"
+            data-tooltip={item.label}
+            onClick={item.onClick}
+            aria-label={item.label}
+          >
+            <item.icon aria-hidden="true" />
+          </button>
+        ))}
+        <div className="dock-divider" aria-hidden="true" />
+        {externalItems.map(item => (
+          <a
+            key={item.id}
+            id={item.id}
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dock-btn dock-btn-tooltip"
+            data-tooltip={item.label}
+            aria-label={`${item.label} (opens in new tab)`}
+          >
+            <item.icon aria-hidden="true" />
+          </a>
+        ))}
+      </nav>
+
+      {/* ─── Mobile hamburger dock ─── */}
+      <div className="dock--mobile">
+        {/* Backdrop */}
+        {menuOpen && (
+          <div className="dock-mobile-overlay" onClick={close} aria-hidden="true" />
+        )}
+
+        {/* Slide-up nav sheet */}
+        <nav
+          id="dock-mobile-menu"
+          className={`dock-mobile-menu${menuOpen ? " dock-mobile-menu--open" : ""}`}
+          aria-label="Site navigation"
+          aria-hidden={!menuOpen}
+        >
+          <div className="dock-mobile-menu-handle" aria-hidden="true" />
+          <div className="dock-mobile-nav-grid">
+            {navItems.map(item => (
+              <button
+                key={`m-${item.id}`}
+                className="dock-mobile-nav-item"
+                onClick={item.onClick}
+                aria-label={item.label}
+                tabIndex={menuOpen ? 0 : -1}
+              >
+                <item.icon className="dock-mobile-nav-icon" aria-hidden="true" />
+                <span className="dock-mobile-nav-label">{item.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="dock-mobile-section-divider" aria-hidden="true" />
+          <div className="dock-mobile-external-row">
+            {externalItems.map(item => (
+              <a
+                key={`m-ext-${item.id}`}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="dock-mobile-ext-item"
+                aria-label={`${item.label} (opens in new tab)`}
+                onClick={close}
+                tabIndex={menuOpen ? 0 : -1}
+              >
+                <item.icon aria-hidden="true" />
+                <span className="dock-mobile-nav-label">{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        {/* Hamburger trigger */}
         <button
-          key={item.id}
-          id={item.id}
-          className="dock-btn dock-btn-tooltip"
-          data-tooltip={item.tooltip}
-          onClick={item.onClick}
-          aria-label={item.tooltip}
+          id="dock-hamburger-btn"
+          className="dock-hamburger"
+          onClick={() => setMenuOpen(v => !v)}
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={menuOpen}
+          aria-controls="dock-mobile-menu"
         >
-          <item.icon aria-hidden="true" />
+          {menuOpen ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
         </button>
-      ))}
-
-      <div className="dock-divider" aria-hidden="true" />
-
-      {externalItems.map(item => (
-        <a
-          key={item.id}
-          id={item.id}
-          href={item.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="dock-btn dock-btn-tooltip"
-          data-tooltip={item.tooltip}
-          aria-label={`${item.tooltip} (opens in new tab)`}
-        >
-          <item.icon aria-hidden="true" />
-        </a>
-      ))}
-    </nav>
+      </div>
+    </>
   );
 }
 
