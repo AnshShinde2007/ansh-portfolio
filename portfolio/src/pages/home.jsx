@@ -43,7 +43,7 @@ sre_sidekick: active
     year: "2026",
     tags: ["AI", "Browser Extension", "JavaScript"],
     tagExtra: 1,
-    github: "https://github.com/AnshShinde2007",
+    github: "https://github.com/AnshShinde2007/huh",
     preview: `$ huh explain "vector embedding"
 
 reading page context...
@@ -97,33 +97,16 @@ dashboard ready.`,
 ];
 
 const EXPERIENCE = [
-  {
-    id: "freelance",
-    abbr: "FS",
-    title: "Backend & AI Developer",
-    org: "Freelance & Independent Projects",
-    year: "2024 — Present",
-    desc: "Building full-stack applications, AI systems, APIs, developer tools, and production websites while experimenting with modern backend and AI architectures.",
-    badge: "Production",
-  },
-  {
-    id: "internship",
-    abbr: "IN",
-    title: "Software Development Intern",
-    org: "Industry",
-    year: "2025 — 2026",
-    desc: "Worked on real-world development projects while gaining experience with production workflows, APIs, databases, debugging, and collaborative development.",
-    badge: null,
-  },
-  {
-    id: "hackathons",
-    abbr: "HK",
-    title: "Hackathon Developer",
-    org: "3+ Competitions",
-    year: "2024 — Present",
-    desc: "Built rapid prototypes and production-style systems under strict time constraints across AI, web development, and product engineering.",
-    badge: "3× Hackathons",
-  },
+{
+id: "internship",
+abbr: "intern",
+title: "Backend Developer Intern",
+org: "Arthlete Motions Pvt Ltd",
+year: "Dec 2025 — Feb 2026",
+desc: "Integrated passwordless authentication with MojoAuth, designed MongoDB schemas for fitness tracking, and built RESTful APIs connecting authentication and exercise data with the frontend.",
+badge: "Backend",
+},
+
 ];
 
 const SKILLS = [
@@ -148,7 +131,7 @@ const SKILLS = [
 const STATS = [
   { value: "3+",   label: "Years Building" },
   { value: "8+",   label: "Projects Shipped" },
-  { value: "3+",   label: "Hackathons" },
+  { value: "10+",   label: "Hackathons" },
   { value: "500+", label: "Commits" },
 ];
 
@@ -173,7 +156,7 @@ const CONTACT_LINKS = [
     id: "linkedin",
     icon: FaLinkedin,
     label: "LinkedIn",
-    value: "ansh-shinde-73137b282",
+    value: "Ansh Shinde",
     href: "https://www.linkedin.com/in/ansh-shinde-73137b282/",
     ariaLabel: "Ansh Shinde on LinkedIn (opens in new tab)",
   },
