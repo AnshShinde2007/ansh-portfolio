@@ -1,5 +1,5 @@
 import js from '@eslint/js'
-import globals, { browser, es2021 } from 'globals'
+import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
@@ -10,12 +10,8 @@ export default [
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
+        ...globals.browser,
         process: "readonly"
-      },
-      env:{
-        nodes:true,
-        browser:false,
-        es2021:true
       },
       parserOptions: {
         ecmaVersion: 'latest',
