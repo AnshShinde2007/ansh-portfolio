@@ -1,6 +1,7 @@
 // src/pages/home.jsx
 /* eslint-disable react/no-unescaped-entities */
 import React, { useRef, useState } from "react";
+import StarField from "../components/StarField";
 import {
   FaGithub, FaLinkedin, FaEnvelope, FaFileAlt,
   FaHome, FaMapMarkerAlt, FaExternalLinkAlt,
@@ -699,6 +700,7 @@ function Dock() {
 export default function Home() {
   return (
     <>
+      <StarField />
       <Toaster
         position="top-right"
         toastOptions={{
