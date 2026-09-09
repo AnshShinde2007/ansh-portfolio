@@ -97,15 +97,15 @@ dashboard ready.`,
 ];
 
 const EXPERIENCE = [
-{
-id: "internship",
-abbr: "intern",
-title: "Backend Developer Intern",
-org: "Arthlete Motions Pvt Ltd",
-year: "Dec 2025 — Feb 2026",
-desc: "Integrated passwordless authentication with MojoAuth, designed MongoDB schemas for fitness tracking, and built RESTful APIs connecting authentication and exercise data with the frontend.",
-badge: "Backend",
-},
+  {
+    id: "internship",
+    abbr: "intern",
+    title: "Backend Developer Intern",
+    org: "Arthlete Motions Pvt Ltd",
+    year: "Dec 2025 — Feb 2026",
+    desc: "Integrated passwordless authentication with MojoAuth, designed MongoDB schemas for fitness tracking, and built RESTful APIs connecting authentication and exercise data with the frontend.",
+    badge: "Backend",
+  },
 
 ];
 
@@ -129,9 +129,9 @@ const SKILLS = [
 ];
 
 const STATS = [
-  { value: "3+",   label: "Years Building" },
-  { value: "8+",   label: "Projects Shipped" },
-  { value: "10+",   label: "Hackathons" },
+  { value: "3+", label: "Years Building" },
+  { value: "8+", label: "Projects Shipped" },
+  { value: "10+", label: "Hackathons" },
   { value: "500+", label: "Commits" },
 ];
 
@@ -140,8 +140,8 @@ const CONTACT_LINKS = [
     id: "email",
     icon: FaEnvelope,
     label: "Email",
-    value: "anshshinde449@gmail.com",
-    href: "mailto:anshshinde449@gmail.com",
+    value: "anshshinde.dev@gmail.com",
+    href: "mailto:anshshinde.dev@gmail.com",
     ariaLabel: "Send email to Ansh Shinde",
   },
   {
@@ -424,10 +424,10 @@ function Contact() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: encode({
           "form-name": "contact",
-          username:  form.current.username?.value  || "",
-          email:     form.current.email?.value     || "",
-          subject:   form.current.subject?.value   || "",
-          fullmsg:   form.current.fullmsg?.value   || "",
+          username: form.current.username?.value || "",
+          email: form.current.email?.value || "",
+          subject: form.current.subject?.value || "",
+          fullmsg: form.current.fullmsg?.value || "",
         }),
       });
       if (!res.ok) throw new Error(`Status ${res.status}`);
@@ -580,19 +580,19 @@ function Dock() {
   };
 
   const navItems = [
-    { id: "home-btn",       icon: FaHome,       label: "Top",        onClick: () => { window.scrollTo({ top: 0, behavior: "smooth" }); close(); } },
-    { id: "about-nav-btn",  icon: FaUser,       label: "About",      onClick: () => scrollTo("about") },
-    { id: "projects-nav",   icon: FaCode,       label: "Projects",   onClick: () => scrollTo("projects") },
-    { id: "skills-nav",     icon: FaLayerGroup, label: "Skills",     onClick: () => scrollTo("skills") },
-    { id: "experience-nav", icon: FaBriefcase,  label: "Exp",        onClick: () => scrollTo("experience") },
-    { id: "contact-nav",    icon: FaEnvelope,   label: "Contact",    onClick: () => scrollTo("contact") },
+    { id: "home-btn", icon: FaHome, label: "Top", onClick: () => { window.scrollTo({ top: 0, behavior: "smooth" }); close(); } },
+    { id: "about-nav-btn", icon: FaUser, label: "About", onClick: () => scrollTo("about") },
+    { id: "projects-nav", icon: FaCode, label: "Projects", onClick: () => scrollTo("projects") },
+    { id: "skills-nav", icon: FaLayerGroup, label: "Skills", onClick: () => scrollTo("skills") },
+    { id: "experience-nav", icon: FaBriefcase, label: "Exp", onClick: () => scrollTo("experience") },
+    { id: "contact-nav", icon: FaEnvelope, label: "Contact", onClick: () => scrollTo("contact") },
   ];
 
   const externalItems = [
-    { id: "github-dock",   icon: FaGithub,   label: "GitHub",   href: "https://github.com/AnshShinde2007" },
+    { id: "github-dock", icon: FaGithub, label: "GitHub", href: "https://github.com/AnshShinde2007" },
     { id: "linkedin-dock", icon: FaLinkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/ansh-shinde-73137b282/" },
-    { id: "email-dock",    icon: FaEnvelope, label: "Email",    href: "mailto:anshshinde449@gmail.com" },
-    { id: "resume-dock",   icon: FaFileAlt,  label: "Resume",   href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
+    { id: "email-dock", icon: FaEnvelope, label: "Email", href: "mailto:anshshinde449@gmail.com" },
+    { id: "resume-dock", icon: FaFileAlt, label: "Resume", href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
   ];
 
   return (
