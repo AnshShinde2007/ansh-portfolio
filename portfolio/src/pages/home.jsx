@@ -150,7 +150,7 @@ const CONTACT_LINKS = [
     label: "GitHub",
     value: "AnshShinde2007",
     href: "https://github.com/AnshShinde2007",
-    ariaLabel: "Ansh Shinde on GitHub (opens in new tab)",
+    ariaLabel: "Ansh Shinde on GitHub (opens new tab)",
   },
   {
     id: "linkedin",
