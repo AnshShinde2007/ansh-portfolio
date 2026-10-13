@@ -166,7 +166,7 @@ const CONTACT_LINKS = [
     icon: FaFileAlt,
     label: "Resume",
     value: "Download PDF →",
-    href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing",
+    href: "https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link",
     ariaLabel: "Download Ansh Shinde's resume PDF (opens in new tab)",
   },
 ];
@@ -579,7 +579,7 @@ function Dock() {
     { id: "github-dock", icon: FaGithub, label: "GitHub", href: "https://github.com/AnshShinde2007" },
     { id: "linkedin-dock", icon: FaLinkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/ansh-shinde-73137b282/" },
     { id: "email-dock", icon: FaEnvelope, label: "Email", href: "mailto:anshshinde449@gmail.com" },
-    { id: "resume-dock", icon: FaFileAlt, label: "Resume", href: "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing" },
+    { id: "resume-dock", icon: FaFileAlt, label: "Resume", href: "https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link" },
   ];
 
   return (

@@ -55,7 +55,7 @@ const Navbar = () => {
         {/* Right actions */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <a
-            href="https://drive.google.com/drive/folders/1JQvdOWH_iCYrH_I-lxFqH-98IfiU3Q7s?usp=sharing"
+            href="https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link"
             target="_blank"
             rel="noopener noreferrer"
             className="navbar-resume-btn"
@@ -88,7 +88,7 @@ const Navbar = () => {
           </span>
         ))}
         <a
-          href="https://drive.google.com/drive/folders/1JQvdOWH_iCYrH_I-lxFqH-98IfiU3Q7s?usp=sharing"
+          href="https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link"
           target="_blank"
           rel="noopener noreferrer"
           className="mobile-menu-link"

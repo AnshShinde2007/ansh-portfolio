@@ -480,7 +480,7 @@ export default function Terminal() {
         { text: "Download complete. Opening in new tab...", className: "line-green" }
       ]);
       window.open(
-        "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing",
+        "https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link",
         "_blank",
         "noopener,noreferrer"
       );

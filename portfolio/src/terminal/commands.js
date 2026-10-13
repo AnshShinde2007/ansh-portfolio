@@ -337,7 +337,7 @@ export const getCommandResponse = async (input, terminalState) => {
       github:   "https://github.com/AnshShinde2007",
       linkedin: "https://www.linkedin.com/in/ansh-shinde-73137b282/",
       email:    "mailto:anshshinde449@gmail.com",
-      resume:   "https://drive.google.com/file/d/1yt-FljGp_P6nR2-O1JwYqV1Xdfw_OrBx/view?usp=sharing"
+      resume:   "https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link"
     };
 
     if (!target) {

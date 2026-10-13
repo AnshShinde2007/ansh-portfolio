@@ -47,7 +47,7 @@ const Resume = () => {
       {/* Download Button */}
       <div style={{ textAlign: "center", marginTop: "40px" }}>
         <a
-          href="https://drive.google.com/file/d/1jvLsGpWYTjQGwAGKGRhQxhyB_BrbMZkc/view?usp=sharing"
+          href="https://drive.google.com/file/d/1e7V52f8N21na-GcLMJYFYe5OuZJQce9E/view?usp=drive_link"
           target="_blank"
           rel="noopener noreferrer"
           className="download-btn"
