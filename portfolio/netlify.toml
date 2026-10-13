@@ -2,6 +2,11 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  VITE_service_id = "service_tc6cuof"
+  VITE_template_id = "template_x51puv7"
+  VITE_public_id = "A7jM5V212fbAzicAY"
+
 [[headers]]
   for = "/*.js"
   [headers.values]
