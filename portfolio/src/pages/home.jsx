@@ -1,5 +1,4 @@
 // src/pages/home.jsx
-/* eslint-disable react/no-unescaped-entities */
 import React, { useRef, useState } from "react";
 import StarField from "../components/StarField";
 import {
@@ -10,6 +9,7 @@ import {
 } from "react-icons/fa";
 import avatarImg from "../assets/avatar.jpg";
 import toast, { Toaster } from "react-hot-toast";
+import emailjs from "@emailjs/browser";
 
 /* ──────────────────────────────────────────────────────────
    DATA
@@ -408,35 +408,24 @@ function Contact() {
   const [sending, setSending] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const encode = (data) =>
-    Object.keys(data)
-      .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
-      .join("&");
-
   const send = async (e) => {
     e.preventDefault();
     setFormError("");
-    if (!form.current) return;
+    if (!form.current || sending || form.current.elements["bot-field"].value) return;
     setSending(true);
 
     try {
-      const res = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encode({
-          "form-name": "contact",
-          username: form.current.username?.value || "",
-          email: form.current.email?.value || "",
-          subject: form.current.subject?.value || "",
-          fullmsg: form.current.fullmsg?.value || "",
-        }),
-      });
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+      await emailjs.sendForm(
+        import.meta.env.VITE_service_id,
+        import.meta.env.VITE_template_id,
+        form.current,
+        { publicKey: import.meta.env.VITE_public_id },
+      );
       toast.success("Message sent!");
       form.current.reset();
     } catch (err) {
       console.error("Send error:", err);
-      setFormError("Failed to send. Try emailing directly: anshshinde449@gmail.com");
+      setFormError("Failed to send. Try emailing directly: anshshinde.dev@gmail.com");
       toast.error("Failed to send message");
     } finally {
       setSending(false);
@@ -473,16 +462,13 @@ function Contact() {
         ))}
       </nav>
 
-      {/* Contact form — submits to Netlify Forms */}
+      {/* Contact form — sends through EmailJS */}
       <form
         ref={form}
         onSubmit={send}
         className="contact-form"
         aria-label="Send a message"
-        noValidate
       >
-        {/* Hidden field required by Netlify Forms */}
-        <input type="hidden" name="form-name" value="contact" />
         {/* Honeypot — leave empty to catch bots */}
         <p hidden><label>Don't fill this out: <input name="bot-field" /></label></p>
 
